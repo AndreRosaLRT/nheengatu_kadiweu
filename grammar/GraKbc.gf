@@ -33,7 +33,7 @@ concrete GraKbc of Lex = open Oper, OperKbc in {
   
 
    --Lin of open word categories: Adjectives (Quality)
-  Heavy = mkNoun "" 
+  
   
   
   mkKind sk = mkKindKbc sk;
