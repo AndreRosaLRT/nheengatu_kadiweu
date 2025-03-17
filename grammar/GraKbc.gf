@@ -9,46 +9,109 @@
 concrete GraKbc of Lex = open Oper, OperKbc in {
  flags coding=utf8 ;
   lincat
-    Comment = EXPR;
-    --SimpleKind = SIMPLEKIND_KBC ;--From OperKbc;  v
-    Kind, SimpleKind, State = KIND_KBC;
-  
-   -- Quality = QUAL_KBC ;
-    --Property = PROPERTY ;
-    --Location = LOCATION ;--REVISAR 
-   -- State = STATE_KBC ;   --REVISAR (não entendi o que é state)
+  {- ; Psor ;  ; ; 
+     ; Location ; Deitic  ; Polarity ; PossPro ; PossKind ; Num ; -}
+    Comment = EXPR; 
+    Kind, SimpleKind = KIND_KBC;
+   -- State = STATE_KBC;
+   Quality =QUAL_KBC;
+    --Property =PROPERTY;
     Item, NonDeitic = ITEM_KBC ; --from OperKbc; v
-    --Psor = DEF_ITEM_KBC ;   --REVISAR (Possessor?)
-    
-   -- NonDeitic = NONVAR_KBC ; --REVISAR (AVALIAR SE O KBC TEM ISSO, O POR NÃO)
-    --PossPro = POSSPRO ;  --REVISAR (POSSESSIVE PRONOUN?)
-   -- PossKind = POSSKIND ;  ---REVISAR (POSSESSIVE KIND?)
-   -- Num = DEF ;
 
   lin
+   -- Pred pol item st = --IMPLEMENTAR (Polarity->Item->State->Comment;)
+    --
+    --let f: FORM = item.s ! st.c ! st.l ;  pred: Str = YrlCopula item.n item.p st.l st.c (st.s ! item.n ! item.p) st.v st.nc pol.s in
+     --{s= f ! Nom ! NCI ++ pred } ;
 
-  --Lin of open word categories: Nouns (SimpleKind)
-  Man  = mkNoun "Gonelegiwa" Masc; -- This is a simple realization  of the noun, as it is possible to realize some other morphemes. I will have to discuss with Leonel how to deal with these cases.
+
+
+  --Lin of open word categories: --
+    -- Nouns (SimpleKind): !REVIEW: I need some help to check the lexemes for nouns in this
+  Man  = mkNoun "Goneleegiwa" Masc; -- This is a simple realization  of the noun, as it is possible to realize some other morphemes. I will have to discuss with Leonel how to deal with these cases.
   Canoe = mkNoun "niwatece" Fem;
-  
+  Food = mkNoun ("oligi"|"weenigi")Fem; --!check
+  Bird = mkNoun "ilaaGagi" Masc;
+  Blood = mkNoun"awodi" Masc; --check: in the dict its Neutral...
+  Branch = mkNoun "libiwe" Masc;-- tronco="libatadi"|"nibatadi"; !!check
+  Brother_Of_Woman = mkNoun "nioxoa" Masc; 
+  Child = mkNoun "nigaanigi" Masc;
+  City = mkNoun "nigotaGa" Fem ;
+  Door = mkNoun "epoagi" Masc;
+  Dove = mkNoun "yotibi" Fem ;
+  Fish = mkNoun "noGojegi" Masc;
+  Grandfather = mkNoun "elokodi" Masc;
+  Hook = mkNoun "lomiigo" Fem ;
+  House = mkNoun "diimigi" Masc;
+  Husband = mkNoun "nodawa" Masc; --or Fem ;
+  Knife = mkNoun "nodaajo" Masc ; 
+  Language = mkNoun "ioladi" Masc ;
+  Life = mkNoun "ewiGa" Masc; 
+  Milk = mkNoun "lotiidi" Masc ;
+  Nest = mkNoun "libato" Masc ;
+  Path = mkNoun "naigi" Masc ;
+  Picture = mkNoun "niwigo" Masc;  
+  Pit = mkNoun "lolagi" Fem;  
+  Pumpkin = mkNoun "aboobile" Fem; 
+  River = mkNoun "akiidi" Masc ;  
+  Seed = mkNoun "lolagi" Fem;  
+  Daughter_Of_Man = mkNoun "niona" Fem ;  
 
-   --Lin of open word categories: Adjectives (Quality)
-  Heavy = mkNoun "" 
+ -- Ant = ;
   
+{--  Antonio = ;  
+  Beak = ;  
+  Boy = ;
+  Community = ;  
+  Egg = ; 
+  Hog_Plum = ; 
+  Joanna = ;  
+  Maria = ;   
+  Pedro = ;  
   
-  mkKind sk = mkKindKbc sk;
-  demonst Number Presence Position NounParamSet Noun = demonstDet Number Presence Position NounParamSet Noun ;
-  
-  --This = demonstDet Sg  "ka" "ida" "ini" "idi" "ina" "ijo" "ada" "ani" "adi" "ana" "ajo" "idiwa"  Present Coming {alienability = Alnbl;psorPers = PsorP3;psorNum = PsorPl;sufClassifier = AnimPlant;number = Sg}  ; --I have to check this function. I might have to create functions specific to KBC because other parameters other the distance, gender and number apply
+  Son_Of_Man = ;  
+  Son_Of_Woman = ;  
+  Daughter_Of_Woman = ;  
+  Stone = ;  
+  Street = ;  
+  Tapioca_Cake = ;  
+  Toucan = ;  
+  Tree = ;  
+  Water = ;  
+  Wife = ;  
+  Woman = ;  
+  Word = ;  -}
+
+  --Qualities (that can be realized by nouns or verbs (and some times, apparently, adjectives))
+  Delicious = mkQualKbc "delicousTestNoun" Masc False;
+  {-Alive = ;
+  Beautiful= ;
+  Cheap= ;
+  Dirty= ;
+  Expensive= ;
+  Good= ;
+  Happy= ;
+  Hard= ;
+  Heavy= ;
+  Hot= ;
+  New= ;
+  Red= ;
+  Round= ;
+  Strong= ;-}
+
   This = demonstDet Sg  "ka" "ida" "ini" "idi" "ina" "ijo" "ada" "ani" "adi" "ana" "ajo" "idiwa"  Present Coming customNounParamSet;
   That = demonstDet Sg Present Going customNounParamSet;
   These = demonstDet Pl Present Coming customNounParamSet ;
   Those = demonstDet Pl Present Going customNounParamSet;
+  
+  
+  mkKind sk = mkKindKbc sk;
+  demonst Number Presence Position NounParamSet Noun = demonstDet Number Presence Position NounParamSet Noun; 
+  
+  --This = demonstDet Sg  "ka" "ida" "ini" "idi" "ina" "ijo" "ada" "ani" "adi" "ana" "ajo" "idiwa"  Present Coming {alienability = Alnbl;psorPers = PsorP3;psorNum = PsorPl;sufClassifier = AnimPlant;number = Sg}  ; --I have to check this function. I might have to create functions specific to KBC because other parameters other the distance, gender and number apply
+ 
 
-    {-Pred pol item st = --IMPLEMENTAR (Polarity->Item->State->Comment;)
-    
-    --let f: FORM = item.s ! st.c ! st.l ;  pred: Str = YrlCopula item.n item.p st.l st.c (st.s ! item.n ! item.p) st.v st.nc pol.s in
-     {s= f ! Nom ! NCI ++ pred } ;
+    {-
     StageLevelState qual = {s= qual.s ; l= Stage; c=qual.c ; v=qual.v ; nc = qual.nc} ;
     IndLevelState qual = {s= qual.s; l= Ind; c=qual.c ; v=qual.v;  nc = qual.nc} ;
     mkItemDeitic var = mkItemYrl var;

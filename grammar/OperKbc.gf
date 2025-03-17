@@ -24,21 +24,14 @@ param
 	Position = Standing|Sitting|Lying|Coming|Going;
 	Presence = Absent|Present;
 
-	--PARAMS FOR THE (PREDICATE): POLARITY
+	--PARAMS FOR THE (PREDICATE): 
+	--POLARITY
 	Polarity = Pos|Neg;
+
+	--
+
+	QualIntransVerb = True|False; --a param to control if the quality is realized as a noun or as an intransitive verb
 	
-	{-PARAMS YRL
-    Class = C1 | C2 ;
-    Pref = Vow | Cons ;
-    Verbal = True | False ;
-    NClass = NCI | NCS  ;
-    Case = Nom | Gen ;
-     SG3 = 3rd person singular pronoun, NGS3 = not SG3
-     TODO: substitute PsorForm for GForm - GroundForm (Figure - Ground distinction)
-    PsorForm = SG3 | NSG3 ;
-     TODO: substitute NRel and NAbs for Rel and Abs
-    NForm = NRel PsorForm | NAbs ;
-    POS = Noun | Pron ;-}
   oper
   
   -- Prefix-dependent operator
@@ -51,6 +44,7 @@ param
 		s : Alienability=>PsorPers => PsorNum => SufClassifier =>Number =>Str; 
 		 g:Gender};
  	
+	Verb : Type ={ s: Person => Number => Str}; --!!TO DO :HAVE TO IMPLEMENT TYPE FOR VERBS, this is just dummy
 	
 	NounPhrase : Type = {
 		s : Str;
@@ -91,20 +85,51 @@ param
 	};
 
 	SIMPLEKIND_KBC = Noun ;
+	KIND_KBC = Noun ;  --What would be realized as Adjective (quality) in english is realized as noun or intransitive verb
 	
-	KIND_KBC = Noun ;
+	QUAL_KBC : Type = { v : Verb ; n : Noun };
+		
+	{-mkQualKbc = overload {
+		mkQualKbc :Str-> Verb = \lema-> mkVerb lema ;
+		mkQualKbc :Str -> Gender -> Noun = \lema,gender-> mkNoun lema gender ;
+	} ;-}
+
+	mkQualKbc : Str -> Gender -> QualIntransVerb -> QUAL_KBC = \root, g, isVerb ->
+      case isVerb of {
+        True => {
+          v = mkVerb root ;
+          n = { s = table { _ => table { _ => table { _ => table { _ => table { _ => "" } } } } } ; g = g } -- Noun vazio
+        } ;
+        False => {
+          v = { s = table { _ => table { _ => "" } } } ; -- Verb vazio
+          n = mkNoun root g
+        }
+      } ;
+
+    -- STATE_KBC extends mkQualKbc with an additional field
+    --STATE_KBC : QualIntransVerb -> Type = \qiv ->
+       -- mkQualKbc qiv ** {l : Level};
 	ITEM_KBC = NounPhrase;
 	ALNBL:Type = {s : Alienability=>Str}; --type for alienability prefix
 	PSORPREF: Type = {s : PsorPers => PsorNum =>  Str}; -- Type for possessor prefixes
 	CLASSFSUFIX:Type ={s : SufClassifier=>Str};   --Type for classifier sufixes
 	NUMBERSUFIX : Type = {s : Number => Str};  --Type for number sufixes
-	
+	POLARITY: Type = {s: Polarity => Str};
 
 	--TO DO
 		--Still need to implement functions for other 2 sufixes (diminutive and nominalizer)
 
 	--mk/* funs
-	
+	mkVerb : Str -> Verb = \verb_root-> 
+
+		{
+			s = table {
+				P1 => table{Sg=> verb_root++"P1"; Pl=>verb_root++"P1"++"s"};
+				P2 => table{Sg=> verb_root++"P2"; Pl=>verb_root++"P2"++"s"};
+				P3 => table{Sg=> verb_root++"P3"; Pl=>verb_root++"P3"++"s"}
+
+			};
+		};
 	
 
 	--helper function to get Noun
@@ -129,31 +154,31 @@ param
 	demonstDet = overload{  --Functions to linearize Noun Groups (Dmonstratives + Noun) -- I might have to revise it (implementing other Cat function on ABSTRACT GRA.gf)
 		
 		demonstDet : Number -> Str -> Str -> Str -> Str -> Str -> Str -> Str -> Str -> Str -> Str -> Str -> Str -> Presence -> Position -> NounParamSet->Noun -> NounPhrase =
-			\n, ka, ida, ini, idi, ina, ijo, ada, ani, adi, ana, ajo, idiwa, presence, position, nounparams, k_noun-> {
+			\n, ka, niGida, niGini, niGidi, niGina, niGijo, naGada, naGani, naGadi, naGana, naGajo, niGidiwa, presence, position, nounparams, k_noun-> {
 			s = case n of {
 			Sg => case k_noun.g of {
 				Masc => case presence of {
 				Absent  => ka;
 				Present => case position of {
-					Standing => ida;
-					Sitting  => ini;
-					Lying    => idi;
-					Coming   => ina;
-					Going    => ijo
+					Standing => niGida;
+					Sitting  => niGini;
+					Lying    => niGidi;
+					Coming   => niGina;
+					Going    => niGijo
 				}
 				};
 				Fem => case presence of {
 				Absent  => ka;
 				Present => case position of {
-					Standing => ada;
-					Sitting  => ani;
-					Lying    => adi;
-					Coming   => ana;
-					Going    => ajo
+					Standing => naGada;
+					Sitting  => naGani;
+					Lying    => naGadi;
+					Coming   => naGana;
+					Going    => naGajo
 				}
 				}
 			};
-			Pl => idiwa
+			Pl => niGidiwa
 			} ++ (getNounForm k_noun nounparams);
 
 			g = k_noun.g;  -- Default gender
@@ -165,12 +190,12 @@ param
 			s=
 			let
 				genderMorph = case k_noun.g of {
-				Masc => "i";
-				Fem  => "a"
+				Masc => "niGi";
+				Fem  => "naGa"
 				};
 
 				presencePositionMorph = case <pres, posit> of {
-				<Absent, _>      => "ca";   --I have to check if ica and ika are the same (which is the demonstrative?)
+				<Absent, _>      => ("ca"|"ka");   --I have to check if ica and ika are the same (which is the demonstrative?)
 				<Present, Standing> => "da";
 				<Present, Sitting>   => "ni";
 				<Present, Lying>     => "di";
@@ -178,7 +203,7 @@ param
 				<Present, Going>     => "jo"
 				};
 
-				pluralMorph = "idiwa";
+				pluralMorph = "niGidiwa";
 
 				-- Usa a função auxiliar com parâmetros padrão
 				nounForm = getNounForm k_noun nounparams;
@@ -209,6 +234,13 @@ param
 			--Pl=>("adi"|"pi"|"Ga"|"dodi"|"ali")	
 			}
 		};
+	mkPolarity : POLARITY = {
+		s= table {
+			Pos => "teste_posit";
+			Neg => "teste_neg"
+			
+		}
+	};
 	mkPsorPref :  PSORPREF =  -- helper to Make possessor prefixes (possessor person and number to str)
 		{
 			s = table {
@@ -256,53 +288,61 @@ param
 
 			};
 		};
-
+	adjustAlienability : Str -> Str -> Str = \marker, next ->
+    case marker of {
+      "n" => case next of {
+        "n" + _ => "" ; -- Remove "n" if root starts with "n"
+        _ => "n"
+      } ;
+      _ => marker -- Keep other markers unchanged
+    } ;
 	
-		mkNoun : Str -> Gender -> SIMPLEKIND_KBC = \root, g ->   --I may have to implement inherent features as gender, case ... -- ( Alienability=>PsorPers => PsorNum => SufClassifier =>Number=> Str)
-			{
-				s = table {
-					alienability => table {
-						psorPers => table {
-							psorNum => table {
-								sufClassifier => table {
-									sufixNumber =>
-										let
-											possPrefix = (mkPsorPref).s ! psorPers ! psorNum;   -- Prefixo possessivo
-											alienabilityMarker = (mkAlienability).s ! alienability;  -- Marcador de alienabilidade
-											sufixClassifier = (mkClassSuf).s ! sufClassifier;  -- Sufixo do classificador
-											sufixNumber = (mkNumSuf).s ! sufixNumber; -- Sufixo de número
-
-											-- Ajuste do prefixo possessivo
-											adjustedPsorPrefix = case possPrefix of {
-												"l" => pre {
-													("t"|"d"|"d:"|"n"|"n:"|"l"|"l:"|"T"|"D"|"D:"|"N"|"N:"|"L"|"L:") => "";  -- Remove "l-" para consoantes alveolares
-													_ => "l"  -- Mantém "l-" caso contrário
-												};
-												"God" => pre {
-													("b"|"c"|"d"|"f"|"g"|"h"|"j"|"k"|"l"|"m"|"n"|"p"|"q"|"r"|"s"|"t"|
-													"v"|"w"|"x"|"y"|"z"|"B"|"C"|"D"|"F"|"G"|"H"|"J"|"K"|"L"|"M"|"N"|
-													"P"|"Q"|"R"|"S"|"T"|"V"|"W"|"X"|"Y"|"Z") => "Go";
-													_ => "God"
-												};
-												"Gad" => pre {
-													("b"|"c"|"d"|"f"|"g"|"h"|"j"|"k"|"l"|"m"|"n"|"p"|"q"|"r"|"s"|"t"|
-													"v"|"w"|"x"|"y"|"z"|"B"|"C"|"D"|"F"|"G"|"H"|"J"|"K"|"L"|"M"|"N"|
-													"P"|"Q"|"R"|"S"|"T"|"V"|"W"|"X"|"Y"|"Z") => "Ga";
-													_ => "Gad"
-												};
-												_ => possPrefix  -- Caso padrão
+	mkNoun : Str -> Gender -> Noun = \root, g ->   --I may have to implement inherent features as gender, case ... -- ( Alienability=>PsorPers => PsorNum => SufClassifier =>Number=> Str)
+		{
+			s = table {
+				alienability => table {
+					psorPers => table {
+						psorNum => table {
+							sufClassifier => table {
+								sufixNumber =>
+									let
+										possPrefix = (mkPsorPref).s ! psorPers ! psorNum;   -- Prefixo possessivo
+										alienabilityMarker = (mkAlienability).s ! alienability;  -- Marcador de alienabilidade
+										sufixClassifier = (mkClassSuf).s ! sufClassifier;  -- Sufixo do classificador
+										sufixNumber = (mkNumSuf).s ! sufixNumber; -- Sufixo de número
+										--Adjusting Alienability prefix
+										adjustedAlienabilityMarker = adjustAlienability alienabilityMarker root ;
+										-- Adjusting psor prefix
+										adjustedPsorPrefix = case possPrefix of {
+											"l" => pre {
+												("t"|"d"|"d:"|"n"|"n:"|"l"|"l:"|"T"|"D"|"D:"|"N"|"N:"|"L"|"L:") => "";  -- Remove "l-" para consoantes alveolares
+												_ => "l"  -- Mantém "l-" caso contrário
 											};
-										in
-											-- Retorna a palavra composta
-											adjustedPsorPrefix + alienabilityMarker + root + sufixClassifier + sufixNumber --REVISE: have to check for the plural sufix concat morphemic rules (eg., a + adi = adi) 
-								}
+											"God" => pre {
+												("b"|"c"|"d"|"f"|"g"|"h"|"j"|"k"|"l"|"m"|"n"|"p"|"q"|"r"|"s"|"t"|
+												"v"|"w"|"x"|"y"|"z"|"B"|"C"|"D"|"F"|"G"|"H"|"J"|"K"|"L"|"M"|"N"|
+												"P"|"Q"|"R"|"S"|"T"|"V"|"W"|"X"|"Y"|"Z") => "Go";
+												_ => "God"
+											};
+											"Gad" => pre {
+												("b"|"c"|"d"|"f"|"g"|"h"|"j"|"k"|"l"|"m"|"n"|"p"|"q"|"r"|"s"|"t"|
+												"v"|"w"|"x"|"y"|"z"|"B"|"C"|"D"|"F"|"G"|"H"|"J"|"K"|"L"|"M"|"N"|
+												"P"|"Q"|"R"|"S"|"T"|"V"|"W"|"X"|"Y"|"Z") => "Ga";
+												_ => "Gad"
+											};
+											_ => possPrefix  -- Caso padrão
+										};
+									in
+										-- Retorna a palavra composta
+										adjustedPsorPrefix + adjustedAlienabilityMarker + root + sufixClassifier + sufixNumber --REVISE: have to check for the plural sufix concat morphemic rules (eg., a + adi = adi) 
 							}
 						}
 					}
-				};
-				g = g -- Gênero
+				}
 			};
-	
+			g = g -- Gênero
+		};
+
 
 	mkKindKbc : SIMPLEKIND_KBC -> KIND_KBC = \sk -> {s = sk.s; g = sk.g};
 	--PATTERNS
@@ -310,7 +350,7 @@ param
 		consonant : pattern Str = #("b"|"c"|"d"|"f"|"g"|"h"|"j"|"k"|"l"|"m"|"n"|"p"|"q"|"r"|"s"|"t"|"v"|"w"|"x"|"y"|"z"|"B"|"C"|"D"|"F"|"G"|"H"|"J"|"K"|"L"|"M"|"N"|"P"|"Q"|"R"|"S"|"T"|"V"|"W"|"X"|"Y"|"Z") ;
 		alveolar_consonant:  pattern Str = #("t"|"d"|"d:"|"n"|"n:"|"l"|"l:"|"T"|"D"|"D:"|"N"|"N:"|"L"|"L:") ; -- Need to check if this pattern for alveolar (dental?) is
 		--PATTERNS dont seem to be working as expected
-
+	
 	
 	
 	
@@ -322,6 +362,7 @@ param
     --This kind = demonstDet kind Masc Present Standing;
 	--Teste3 = mkNoun "Gonel:e:giwa" Masc;
 	TesteDem = demonstDet Sg  "ka" "ida" "ini" "idi" "ina" "ijo" "ada" "ani" "adi" "ana" "ajo" "idiwa" Present Coming defaultNounParamSet (mkNoun "Gonelegiwa" Masc );
+	TesteDem2 = demonstDet Sg Present Coming defaultNounParamSet (mkNoun "Gonelegiwa" Masc );
 	teste_getnoun = getNounForm ( mkNoun "Gonelegiwa" Masc) customNounParamSet;
 	teste_getnoun = getNounForm ( mkNoun "Gonelegiwa" Masc) customNounParamSet;
 	
