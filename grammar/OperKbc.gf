@@ -27,31 +27,52 @@ param
 	--PARAMS FOR THE (PREDICATE): 
 	--POLARITY
 	Polarity = Pos|Neg;
+	
+	--params verb
+	AspectPre = Completive | Incompletive | Durative | AspPreNone ; -- -7 --Completed action|incompleted action|
+    NegationMain = NegMain | PositMain ; -- -6
+    NegationSubord = NegSub | NegCondImp | PositSubord ; -- -6
 
-	--
+    Mood = Ind | Imp | Cond | Desid ; -- -5
+    Person = P1 | P2 | P3 | P3Unacc | Impers | PersonNone ; -- -3
+    Number = Sg | Pl ; -- -4 (sujeito)
+    Reflexive = Refl | NonRefl ; -- -2
+    Directional = Hither | NoDir ; -- -1 (n- "hither")
+    Valence = Trans | Intrans ; -- 1
+    AspectPost = Telic | Atelic |ExclusiveAtelic|AspPostNone;
+	AspectPostClitic = Repetitive | Intensive | AspPostClitNone ; -- 2
+    NumberPost = ObjSg | ObjPl | ObjNone ; -- 3
+    Motion = GoingMot | Straight | Together | Inside | Against | Apart | MotNone ; -- 4
+    Direction = Outward | Upward | Inward | Toward | Backward | Downward | AbsentDir | DirNone ; -- 5
+    CliticIndObj = IndObj1sg | IndObj2sg | IndObj1pl | IndObj2pl | IndObj3 | ClIndNone ; -- 6
+    CliticPlural = PlurNiwak | PlurWaji | PlurBoth | ClPlurNone ; -- 7
+
+	--PARAMS QUALITY
 
 	QualIntransVerb = True|False; --a param to control if the quality is realized as a noun or as an intransitive verb
 	
   oper
-  
-  -- Prefix-dependent operator
-  
-	--Types 
+	
+--Types 
+--NOUN
 		--TO DO
 		--Still need to implement types for other 2 sufixes (diminutive and nominalizer)
 		--In the near future, I might have to include inherent features of the noun (case??might enherit from the verb); gender seems not to be a feature of the noun
 	Noun : Type = {
 		s : Alienability=>PsorPers => PsorNum => SufClassifier =>Number =>Str; 
 		 g:Gender};
- 	
-	Verb : Type ={ s: Person => Number => Str}; --!!TO DO :HAVE TO IMPLEMENT TYPE FOR VERBS, this is just dummy
-	
-	NounPhrase : Type = {
+ 	NounPhrase : Type = {
 		s : Str;
 		g : Gender;
 		n : Number;
 		};
 	
+--VERB
+	
+	{-Verb : Type ={ s: AspectPre => Negation => Mood => Person Number=>Reflexive=>Directional=>Valence=>AspectPost=>NumberPost=>Motion=>Direction=>CliticIndObj=>CliticPlural=>Str}; 
+	-}
+	
+	--paramset variables
 	NounParamSet :Type ={
 		alienability : Alienability;
 		psorPers : PsorPers;
@@ -87,14 +108,14 @@ param
 	SIMPLEKIND_KBC = Noun ;
 	KIND_KBC = Noun ;  --What would be realized as Adjective (quality) in english is realized as noun or intransitive verb
 	
-	QUAL_KBC : Type = { v : Verb ; n : Noun };
+	--QUAL_KBC : Type = { v : Verb ; n : Noun };
 		
 	{-mkQualKbc = overload {
 		mkQualKbc :Str-> Verb = \lema-> mkVerb lema ;
 		mkQualKbc :Str -> Gender -> Noun = \lema,gender-> mkNoun lema gender ;
 	} ;-}
 
-	mkQualKbc : Str -> Gender -> QualIntransVerb -> QUAL_KBC = \root, g, isVerb ->
+	{-mkQualKbc : Str -> Gender -> QualIntransVerb -> QUAL_KBC = \root, g, isVerb ->
       case isVerb of {
         True => {
           v = mkVerb root ;
@@ -104,11 +125,12 @@ param
           v = { s = table { _ => table { _ => "" } } } ; -- Verb vazio
           n = mkNoun root g
         }
-      } ;
+      } ;-}
 
     -- STATE_KBC extends mkQualKbc with an additional field
     --STATE_KBC : QualIntransVerb -> Type = \qiv ->
        -- mkQualKbc qiv ** {l : Level};
+	
 	ITEM_KBC = NounPhrase;
 	ALNBL:Type = {s : Alienability=>Str}; --type for alienability prefix
 	PSORPREF: Type = {s : PsorPers => PsorNum =>  Str}; -- Type for possessor prefixes
@@ -116,21 +138,7 @@ param
 	NUMBERSUFIX : Type = {s : Number => Str};  --Type for number sufixes
 	POLARITY: Type = {s: Polarity => Str};
 
-	--TO DO
-		--Still need to implement functions for other 2 sufixes (diminutive and nominalizer)
-
-	--mk/* funs
-	mkVerb : Str -> Verb = \verb_root-> 
-
-		{
-			s = table {
-				P1 => table{Sg=> verb_root++"P1"; Pl=>verb_root++"P1"++"s"};
-				P2 => table{Sg=> verb_root++"P2"; Pl=>verb_root++"P2"++"s"};
-				P3 => table{Sg=> verb_root++"P3"; Pl=>verb_root++"P3"++"s"}
-
-			};
-		};
-	
+--mk/* funs
 
 	--helper function to get Noun
 	getNounForm : Noun -> NounParamSet -> Str =  --
@@ -231,7 +239,7 @@ param
 			s = table{
 				Sg => "";
 				Pl=>("adi") --still a general realization of the variations of plural sufixes (will implement specificities: it is lexically oriented)
-			--Pl=>("adi"|"pi"|"Ga"|"dodi"|"ali")	
+			--Pl=>("adi"|"pi"|"Ga"|"dodi"|"ali"|"tedi")	
 			}
 		};
 	mkPolarity : POLARITY = {
@@ -289,13 +297,13 @@ param
 			};
 		};
 	adjustAlienability : Str -> Str -> Str = \marker, next ->
-    case marker of {
-      "n" => case next of {
-        "n" + _ => "" ; -- Remove "n" if root starts with "n"
-        _ => "n"
-      } ;
-      _ => marker -- Keep other markers unchanged
-    } ;
+		case marker of {
+		"n" => case next of {
+			"n" + _ => "" ; -- Remove "n" if root starts with "n"
+			_ => "n"
+		} ;
+		_ => marker -- Keep other markers unchanged
+		} ;
 	
 	mkNoun : Str -> Gender -> Noun = \root, g ->   --I may have to implement inherent features as gender, case ... -- ( Alienability=>PsorPers => PsorNum => SufClassifier =>Number=> Str)
 		{
@@ -351,8 +359,208 @@ param
 		alveolar_consonant:  pattern Str = #("t"|"d"|"d:"|"n"|"n:"|"l"|"l:"|"T"|"D"|"D:"|"N"|"N:"|"L"|"L:") ; -- Need to check if this pattern for alveolar (dental?) is
 		--PATTERNS dont seem to be working as expected
 	
+	mkProperNameKbc : Str-> Gender -> SIMPLEKIND_KBC = \name, gender -> mkNoun name gender ; --pretty much the same as using mkNoun directly (I migh have to adapt this function in future)
+	
+
+	-- MORPHOLOGICAL OPERATIONS OF THE VERB
+
+    mkAspectPre : { s : AspectPre => Str } = 
+		{s = table { Completive => "jaG" ; Incompletive => "baGa" ; Durative => "banaGa" ; AspPreNone => "" }
+		} ; --(-7)
+	
+	mkNegationMain : { s : NegationMain => Str } = {
+		s = table { NegMain => "aG" ;  PositMain => "" }
+		} ; --(-6) 
+
+	mkNegationSubord:{s: NegationSubord=> Str } = {
+		s= table{ NegSub => "daGa" ; NegCondImp => "nGa" ; PositSubord => ""} }; --THIS NEGATION TAKES EFFECT ON THE CLAUSE RANK (NOT AS MORPHEME OF VERB)
+	
+	mkMood : { s : Mood => Str } = {
+      s = table {Cond => "dGa" ; Desid => "domaGa"; _ => ""  }
+    } ;--(-5)
+	mkAspectPost : { s : AspectPost => Str } = {
+      s = table { Telic => "g" ; Atelic => "" ; ExclusiveAtelic => "d" ; AspPostNone => "" }
+    } ; --(+2)
+
+	mkAspectPostClitic : { s : AspectPostClitic => Str } = {
+      s = table {Repetitive => "ak" ; Intensive => "bigi" ; AspPostClitNone => "" }
+    } ; --(+4)
+
+    mkPerson : Person => Valence => Person =>Str=> Str = \subj, val, obj, root -> -- Hierarquia
+      case <val, subj, obj> of {
+		<Trans, P1, P3> => case root of { 
+			("t"|"d"|"n") + _ => "i" ; _ => "y" } ;
+		<Trans, _, P3> => case root of { 
+          ("p"|"b"|"t"|"d"|"k"|"g") + _ => "" ; 
+          "a" + _ => "w" ; 
+          "n" + _ => "a" ; 
+          _ => "y" 
+        } ;
+--PAREI AQUI
+
+
+
+
+        <Intrans, P1, PersonNone> => case root of { ("t"|"d"|"n") + _ => "i" ; _ => "j" } ;
+        <Intrans, P2, PersonNone> => "a-" ;
+        <Intrans, P3, PersonNone> => case root of { 
+          ("p"|"b"|"t"|"d"|"k"|"g") + _ => "" ; 
+          "a" + _ => "w" ; 
+          "n" + _ => "a" ; 
+          _ => "y" 
+        } ;
+        <Intrans, P3Unacc, PersonNone> => "n" ;
+        <Intrans, Impers, PersonNone> => "eti" ;
+        
+		
+		
+		
+		
+        
+		
+		
+		
+		<Trans, P2, P1> => "a" ;
+        <Trans, _, P1> => "i" ;
+        <Trans, _, P2> => "Ga" ;
+        
+        _ => ""
+      } ;
+
+    {-
+    
+    mkNumberPre : { s : Number => Str } = {
+      s = table { Sg => "" ; Pl => "di-" } -- Placeholder
+    } ;
+    mkReflexive : { s : Reflexive => Str } = {
+      s = table { Refl => "si-" ; NonRefl => "" }
+    } ;
+    mkDirectional : { s : Directional => Str } = {
+      s = table { Hither => "n-" ; NoDir => "" }
+    } ;
+    mkValence : { s : Valence => Str } = {
+      s = table { Trans => "-ti" ; Intrans => "" } -- Placeholder
+    } ;
+    
+    mkNumberPost : { s : NumberPost => Str } = {
+      s = table { ObjSg => "" ; ObjPl => "-di" ; ObjNone => "" }
+    } ;
+    mkMotion : { s : Motion => Str } = {
+      s = table { 
+        Going => "+jo" ; 
+        Straight => "+ko" ; 
+        Together => "+wag" ; 
+        Inside => "+n" ; 
+        Against => "+get" ; 
+        Apart => "+kowak" ; 
+        MotNone => "" 
+      }
+    } ;
+    mkDirection : { s : Direction => Str } = {
+      s = table { 
+        Outward => "+ke" ; 
+        Upward => "+bigim" ; 
+        Inward => "+w" ; -- ou +wei, ajustar
+        Toward => "+gi:" ; 
+        Backward => "+we" ; 
+        Downward => "+nigi" ; -- ou +n:, ajustar
+        Absent => "+ka" ; 
+        DirNone => "" 
+      }
+    } ;
+    mkCliticIndObj : { s : CliticIndObj => Str } = {
+      s = table { 
+        IndObj1sg => "+i" ; 
+        IndObj2sg => "+Ga" ; 
+        IndObj1pl => "+Go" ; 
+        IndObj2pl => "+Ga+i" ; 
+        IndObj3 => "+e" ; 
+        ClIndNone => "" 
+      }
+    } ;
+    mkCliticPlural : { s : CliticPlural => Str } = {
+      s = table { 
+        PlurNiwak => "+niwak" ; 
+        PlurWaji => "+waji" ; 
+        PlurBoth => "+niwak+waji" ; 
+        ClPlurNone => "" 
+      }
+    } ;
 	
 	
+	-- Ajuste fonológico para clíticos
+    adjustClitic : Str -> Str -> Str = \base, clitic ->
+      case clitic of {
+        ("+jo"|"+ko"|"+wag"|"+n"|"+get"|"+kowak"|"+ke"|"+bigim"|"+w"|"+gi:"|"+we"|"+nigi"|"+ka"|"+i"|"+Ga"|"+Go"|"+Ga+i"|"+e"|"+niwak"|"+waji"|"+niwak+waji") => 
+          case base of { 
+            _ + ("m"|"n"|"l"|"r") => base ++ clitic ; -- Deleção de sonorante implícita
+            _ => base ++ clitic 
+          } ;
+        _ => base ++ clitic
+      } ;
+
+    -- Construtor de Verbos
+    mkVerb : Str -> Verb = \root -> {
+      s = table {
+        aspPre => table {
+          neg => table {
+            mood => table {
+              pers => table {
+                numPre => table {
+                  refl => table {
+                    dir => table {
+                      val => table {
+                        aspPost => table {
+                          numPost => table {
+                            mot => table {
+                              dirCl => table {
+                                clInd => table {
+                                  clPlur =>
+                                    let
+                                      -- Prefixos (-7 a -1)
+                                      aspectPre = (mkAspectPre).s ! aspPre ;
+                                      negation = (mkNegation).s ! neg ;
+                                      moodMark = (mkMood).s ! mood ;
+                                      person = mkPerson pers val (case val of { Trans => P3 ; _ => None }) ;
+                                      numberPre = (mkNumberPre).s ! numPre ;
+                                      reflexive = (mkReflexive).s ! refl ;
+                                      directional = (mkDirectional).s ! dir ;
+                                      -- Sufixos/Clíticos (1 a 7)
+                                      valence = (mkValence).s ! val ;
+                                      aspectPostMark = (mkAspectPost).s ! aspPost ;
+                                      numberPostMark = (mkNumberPost).s ! numPost ;
+                                      motion = (mkMotion).s ! mot ;
+                                      direction = (mkDirection).s ! dirCl ;
+                                      cliticIndObj = (mkCliticIndObj).s ! clInd ;
+                                      cliticPlural = (mkCliticPlural).s ! clPlur ;
+                                      -- Aplicar ajustes fonológicos
+                                      rootWithAspect = adjustClitic root aspectPostMark ;
+                                      rootWithMotion = adjustClitic rootWithAspect motion ;
+                                      rootWithDirection = adjustClitic rootWithMotion direction ;
+                                      rootWithClitics = adjustClitic rootWithDirection cliticIndObj
+                                    in
+                                      aspectPre + negation + moodMark + numberPre + 
+                                      person + reflexive + directional + rootWithClitics + 
+                                      valence + numberPostMark + motion + direction + cliticPlural
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    } ;
+	
+	
+	-}
 	
 	
 	--TESTING AREAAAAA

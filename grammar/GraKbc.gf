@@ -43,7 +43,7 @@ concrete GraKbc of Lex = open Oper, OperKbc in {
   Grandfather = mkNoun "elokodi" Masc;
   Hook = mkNoun "lomiigo" Fem ;
   House = mkNoun "diimigi" Masc;
-  Husband = mkNoun "nodawa" Masc; --or Fem ;
+  Husband = mkNoun "nodawa" Masc;
   Knife = mkNoun "nodaajo" Masc ; 
   Language = mkNoun "ioladi" Masc ;
   Life = mkNoun "ewiGa" Masc; 
@@ -55,32 +55,31 @@ concrete GraKbc of Lex = open Oper, OperKbc in {
   Pumpkin = mkNoun "aboobile" Fem; 
   River = mkNoun "akiidi" Masc ;  
   Seed = mkNoun "lolagi" Fem;  
-  Daughter_Of_Man = mkNoun "niona" Fem ;  
-
+  Daughter_Of_Man, Daughter_Of_Woman = mkNoun "niona" Fem ;  
+  Son_Of_Man, Son_Of_Woman = mkNoun "nionigi" Masc; --ni-oonigi (fala da mulher)??
+  Stone = mkNoun "wetiGa" Fem;
+  Street = mkNoun "ladigodi" Fem ;
+  Toucan = mkNoun "Gatodi" Masc;
+  Tree = mkNoun "niale" Fem;  
+  Water = mkNoun "ninyoGodi" Masc;
+  Wife = mkNoun "nodawa" Fem;
+  Woman = mkNoun "iwaalo" Fem;  
+  Word = mkNoun "notaGa" Masc; --check gender
+  Antonio =mkProperNameKbc "Antônio" Masc;
+  Joanna = mkProperNameKbc "Joana" Fem;
+  Maria = mkProperNameKbc "Maria" Fem;
+  Pedro = mkProperNameKbc "Pedro" Fem;
+  
  -- Ant = ;
   
-{--  Antonio = ;  
+{--  COULD NOT FIND THESE ON DICTIONARY ;  
   Beak = ;  
   Boy = ;
   Community = ;  
   Egg = ; 
   Hog_Plum = ; 
-  Joanna = ;  
-  Maria = ;   
-  Pedro = ;  
-  
-  Son_Of_Man = ;  
-  Son_Of_Woman = ;  
-  Daughter_Of_Woman = ;  
-  Stone = ;  
-  Street = ;  
   Tapioca_Cake = ;  
-  Toucan = ;  
-  Tree = ;  
-  Water = ;  
-  Wife = ;  
-  Woman = ;  
-  Word = ;  -}
+   -}
 
   --Qualities (that can be realized by nouns or verbs (and some times, apparently, adjectives))
   Delicious = mkQualKbc "delicousTestNoun" Masc False;
@@ -96,6 +95,8 @@ concrete GraKbc of Lex = open Oper, OperKbc in {
   Hot= ;
   New= ;
   Red= ;
+teste git
+
   Round= ;
   Strong= ;-}
 
@@ -106,7 +107,7 @@ concrete GraKbc of Lex = open Oper, OperKbc in {
   
   
   mkKind sk = mkKindKbc sk;
-  demonst Number Presence Position NounParamSet Noun = demonstDet Number Presence Position NounParamSet Noun; 
+  --demonst Number Presence Position NounParamSet Noun = demonstDet Number Presence Position NounParamSet Noun; 
   
   --This = demonstDet Sg  "ka" "ida" "ini" "idi" "ina" "ijo" "ada" "ani" "adi" "ana" "ajo" "idiwa"  Present Coming {alienability = Alnbl;psorPers = PsorP3;psorNum = PsorPl;sufClassifier = AnimPlant;number = Sg}  ; --I have to check this function. I might have to create functions specific to KBC because other parameters other the distance, gender and number apply
  
