@@ -13,11 +13,12 @@ concrete GraKbc of Lex = open Oper, OperKbc in {
      ; Location ; Deitic  ; Polarity ; PossPro ; PossKind ; Num ; -}
     Comment = EXPR; 
     Kind, SimpleKind = KIND_KBC;
-   -- State = STATE_KBC;
-   Quality =QUAL_KBC;
+   --
+    --State = STATE_KBC;
+   --Quality =QUAL_KBC;
     --Property =PROPERTY;
     Item, NonDeitic = ITEM_KBC ; --from OperKbc; v
-
+   
   lin
    -- Pred pol item st = --IMPLEMENTAR (Polarity->Item->State->Comment;)
     --
@@ -25,7 +26,7 @@ concrete GraKbc of Lex = open Oper, OperKbc in {
      --{s= f ! Nom ! NCI ++ pred } ;
 
 
-
+  Pull = mkVerb ANone NNone MNone NImpers Impers Sg Trans P2 Sg RNone HitherPos "degi" VNone APNone NPNone C4None C5None C6None C7None;
   --Lin of open word categories: --
     -- Nouns (SimpleKind): !REVIEW: I need some help to check the lexemes for nouns in this
   Man  = mkNoun "Goneleegiwa" Masc; -- This is a simple realization  of the noun, as it is possible to realize some other morphemes. I will have to discuss with Leonel how to deal with these cases.
@@ -79,10 +80,10 @@ concrete GraKbc of Lex = open Oper, OperKbc in {
   Egg = ; 
   Hog_Plum = ; 
   Tapioca_Cake = ;  
-   -}
+   asdf-}
 
   --Qualities (that can be realized by nouns or verbs (and some times, apparently, adjectives))
-  Delicious = mkQualKbc "delicousTestNoun" Masc False;
+  --Delicious = mkQualKbc "delicousTestNoun" Masc False;
   {-Alive = ;
   Beautiful= ;
   Cheap= ;

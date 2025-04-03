@@ -21,6 +21,7 @@ concrete GraYrl of Lex = open Oper, OperYrl in {
     PossPro = POSSPRO ;
     PossKind = POSSKIND ;
     Num = DEF ;
+    
 
   lin
     Pred pol item st = let f: FORM = item.s ! st.c ! st.l ;  pred: Str = YrlCopula item.n item.p st.l st.c (st.s ! item.n ! item.p) st.v st.nc pol.s in
