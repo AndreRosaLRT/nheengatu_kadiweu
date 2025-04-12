@@ -8,7 +8,8 @@
 resource Oper = open Prelude in { 
 flags coding=utf8 ;
 param
-	Person = P1 | P2 | P3 ;
+	Person = P1 | P2 | P3 | Impers | PNone ;
+	
     Number = Sg | Pl ;
     Gender = Masc | Fem ;
     Level = Ind | Stage ;
@@ -31,12 +32,14 @@ mkIrrVerb : (_,_,_,_,_,_ : Str) -> Number => Person => Str =
 	  	Sg => table {
 		   P1 => sum; 
 		   P2 => es; 
-		   P3 => est
+		   P3 => est;
+		   _ => ""
 		   } ; 
 	  	 Pl => table {
 		    P1 => sumus; 
 		    P2 => estis; 
-		    P3 => sunt
+		    P3 => sunt;
+			_=>""
 		    }
 		    } ;
 }

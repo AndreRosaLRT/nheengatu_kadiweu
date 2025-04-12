@@ -6,7 +6,7 @@
 
 
 
-concrete GraKbc of Lex = open Oper, OperKbc in {
+concrete GraKbc of Lex = open Oper, OperKbc, Prelude in {
  flags coding=utf8 ;
   lincat
   {- ; Psor ;  ; ; 
@@ -14,10 +14,11 @@ concrete GraKbc of Lex = open Oper, OperKbc in {
     Comment = EXPR; 
     Kind, SimpleKind = KIND_KBC;
    --
-    --State = STATE_KBC;
-   --Quality =QUAL_KBC;
+    State = STATE_KBC;
+    Quality =QUAL_KBC;
     --Property =PROPERTY;
     Item, NonDeitic = ITEM_KBC ; --from OperKbc; v
+    Action = Verb;
    
   lin
    -- Pred pol item st = --IMPLEMENTAR (Polarity->Item->State->Comment;)
@@ -26,7 +27,6 @@ concrete GraKbc of Lex = open Oper, OperKbc in {
      --{s= f ! Nom ! NCI ++ pred } ;
 
 
-  Pull = mkVerb ANone NNone MNone NImpers Impers Sg Trans P2 Sg RNone HitherPos "degi" VNone APNone NPNone C4None C5None C6None C7None;
   --Lin of open word categories: --
     -- Nouns (SimpleKind): !REVIEW: I need some help to check the lexemes for nouns in this
   Man  = mkNoun "Goneleegiwa" Masc; -- This is a simple realization  of the noun, as it is possible to realize some other morphemes. I will have to discuss with Leonel how to deal with these cases.
@@ -71,6 +71,9 @@ concrete GraKbc of Lex = open Oper, OperKbc in {
   Maria = mkProperNameKbc "Maria" Fem;
   Pedro = mkProperNameKbc "Pedro" Fem;
   
+  --VERBS
+  Alepe = (mkVerb alEpe Bitrans VNone {cl4={rel=True;rep=False;p3=False}; cl5={rel=RelT;pers=P1;num=Sg;dirI=GoingDirI;dirII=Outward;semRole=WaDative}; cl6={rel=True;pl=True}; cl7={rel=True;pl=True}});
+-- TestBool = testBool True ;
  -- Ant = ;
   
 {--  COULD NOT FIND THESE ON DICTIONARY ;  

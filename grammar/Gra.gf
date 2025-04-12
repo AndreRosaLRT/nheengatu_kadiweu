@@ -9,7 +9,7 @@ abstract Gra = {
   flags startcat = Comment ;
   cat
     Comment ; Item ; Psor ; Kind ; SimpleKind ; State ; Quality ; 
-    Property ; Location ; Deitic ; NonDeitic ; Polarity ; PossPro ; PossKind ; Num ; 
+    Property ; Location ; Deitic ; NonDeitic ; Polarity ; PossPro ; PossKind ; Num ; Action;
   fun
     Pred:Polarity->Item->State->Comment;
     StageLevelState : Property -> State ;
