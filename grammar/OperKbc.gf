@@ -82,9 +82,9 @@ param
  	NounPhrase : Type = {
 		s : Str;
 		g : Gender;
-		n : Number;
+		n : Number
 		};
-	
+			
 --VERB
 	Verb : Type = {
       s : Person => Number => Person => Number => Person => Number => Str; 
@@ -133,6 +133,21 @@ param
 		number = Sg
 	};
 
+	customNounParamSet3 :  NounParamSet ={
+		alienability = Alnbl;
+		psorPers = NoPoss;
+		psorNum = NoPsorNum;
+		sufClassifier = AnimPlant;
+		number = Pl
+	};
+	customNounParamSet4 :  NounParamSet ={
+		alienability = Alnbl;
+		psorPers = NoPoss;
+		psorNum = NoPsorNum;
+		sufClassifier = UndefClassfr;
+		number = Pl
+	};
+
 	SIMPLEKIND_KBC = Noun ;
 	KIND_KBC = Noun ;  --What would be realized as Adjective (quality) in english is realized as noun or intransitive verb
 	
@@ -145,7 +160,7 @@ param
 	ITEM_KBC = NounPhrase;
 	ALNBL:Type = {s : Alienability=>Str}; --type for alienability prefix
 	PSORPREF: Type = {s : PsorPers => PsorNum =>  Str}; -- Type for possessor prefixes
-	CLASSFSUFIX:Type ={s : SufClassifier=>Str};   --Type for classifier sufixes
+	CLASSFSUFIX:Type ={s : SufClassifier => Number => Str};   --Type for classifier sufixes
 	NUMBERSUFIX : Type = {s : Number => Str};  --Type for number sufixes
 	POLARITY: Type = {s: Polarity => Str};
 
@@ -212,7 +227,13 @@ param
 	--mk/* funs
 
 	--helper function to get Noun
-	getNounForm : Noun -> NounParamSet -> Str =  --
+	getNounForm : Noun -> NounParamSet -> Str = \noun, params ->
+ 	 noun.s ! params.alienability
+         ! params.psorPers
+         ! params.psorNum
+         ! params.sufClassifier
+         ! params.number;	
+	{-getNounForm : Noun -> NounParamSet -> Str =  --
 		\noun, params ->
 			let fullparams = {
 				alienability = case params.alienability of { NoAlnbl => defaultNounParamSet.alienability ; _ => params.alienability };
@@ -228,7 +249,7 @@ param
 			   ! fullparams.psorNum
 			   ! fullparams.sufClassifier
 			   ! fullparams.number;
-	
+	-}
 	
 	demonstDet = overload{  --Functions to linearize Noun Groups (Dmonstratives + Noun) -- I might have to revise it (implementing other Cat function on ABSTRACT GRA.gf)
 		
@@ -258,7 +279,7 @@ param
 				}
 			};
 			Pl => niGidiwa
-			} ++ (getNounForm k_noun nounparams);
+			} + (getNounForm k_noun nounparams);
 
 			g = k_noun.g;  -- Default gender
 			n = n          -- Default number
@@ -292,7 +313,7 @@ param
 			
 			case n of {
 				Sg => genderMorph + presencePositionMorph ++ nounForm;
-				Pl => pluralMorph ++ nounForm
+				Pl => pluralMorph + nounForm
 				};
 				g = k_noun.g;  -- Default gender
 				n = n;  -- Default number
@@ -305,13 +326,37 @@ param
 	mkAlienability : ALNBL =  --helper mk to realization of the alienability sufix;
 		{s = table {Alnbl=>"n";_=>""};
 		};
-	mkNumSuf : NUMBERSUFIX =            ---helper function to superficial realization of the kbc number sufix
-		{
-			s = table{
-				Sg => "";
-				Pl=>("adi") --still a general realization of the variations of plural sufixes (will implement specificities: it is lexically oriented)
-			--Pl=>("adi"|"pi"|"Ga"|"dodi"|"ali"|"tedi")	
-			}
+	
+	
+
+	endsInVowel : Str -> Bool = \s ->
+		case s of {
+		_ + ("a"|"e"|"i"|"o"|"u"|"A"|"E"|"I"|"O"|"U") => True ;
+			_ => False
+		};
+		
+	mkNumSuf : Str -> NUMBERSUFIX = \root -> {
+		s = table {
+			Sg => "";
+			Pl => let
+					-- Verifica se a raiz termina em vogal
+					isVowelEnd = endsInVowel root;
+					-- Escolhe sufixo com base em padrões
+					suf = case root of {
+					("eke"|"kwe"|"sana")=> "adi"; -- Exemplo: "cachorro", "coisa", "casa"
+					("pila"|"taba")  => "pi";      
+					("abidaGa"|"koda")=> "Ga";   
+					("waka"|"jema")=> "dodi";    
+					("nodajo"|"lapi")  => "al:i";
+					_ => "adi"
+					}
+				in
+					case <isVowelEnd, suf> of {
+					<True, "adi">  => "di";
+					<True, "al:i"> => ":i";
+					_ => suf
+					}
+		}
 		};
 	mkPolarity : POLARITY = {
 		s= table {
@@ -354,18 +399,26 @@ param
 		};
 
 	
-	mkClassSuf : CLASSFSUFIX =  --helper function to make the classifier sufix 
-		{
-			s = table {
-				UndefClassfr => "";
-				AnimPlant => "nigo";      -- Animals/plants
-				Cultivated => "ija";         -- Cultivated plants
-				Instrum => "GanGa";       -- Instruments
-				ActorNmnlzr => "Gikajo" -- Actor nominalizer
-				 --;
-				--_ => ""                 -- Default (no classifier)
-
+	mkClassSuf : CLASSFSUFIX = {
+		s = table {
+			UndefClassfr => table {
+			_ => ""
 			};
+			AnimPlant => table {
+			Sg => "nigo";
+			Pl => "co"
+			};
+			Cultivated => table {
+			Sg => ""; -- Não usado no singular
+			Pl => "ija"
+			};
+			Instrum => table {
+			_ => "GanGa"
+			};
+			ActorNmnlzr => table {
+			_ => "Gikajo:"
+			}
+		}
 		};
 	adjustAlienability : Str -> Str -> Str = \marker, next ->
 		case marker of {
@@ -387,8 +440,8 @@ param
 									let
 										possPrefix = (mkPsorPref).s ! psorPers ! psorNum;   -- Prefixo possessivo
 										alienabilityMarker = (mkAlienability).s ! alienability;  -- Marcador de alienabilidade
-										sufixClassifier = (mkClassSuf).s ! sufClassifier;  -- Sufixo do classificador
-										sufixNumber = (mkNumSuf).s ! sufixNumber; -- Sufixo de número
+										sufixClassifierStr = (mkClassSuf).s ! sufClassifier ! sufixNumber; -- Sufixo do classificador
+										sufixNumberStr = (mkNumSuf root).s ! sufixNumber; -- Sufixo de número
 										--Adjusting Alienability prefix
 										adjustedAlienabilityMarker = adjustAlienability alienabilityMarker root ;
 										-- Adjusting psor prefix
@@ -413,7 +466,7 @@ param
 										};
 									in
 										-- Retorna a palavra composta
-										adjustedPsorPrefix + adjustedAlienabilityMarker + root + sufixClassifier + sufixNumber --REVISE: have to check for the plural sufix concat morphemic rules (eg., a + adi = adi) 
+										adjustedPsorPrefix + adjustedAlienabilityMarker + root + sufixClassifierStr + sufixNumberStr --REVISE: have to check for the plural sufix concat morphemic rules (eg., a + adi = adi) 
 							}
 						}
 					}
@@ -429,7 +482,14 @@ param
 		consonant : pattern Str = #("b"|"c"|"d"|"f"|"g"|"h"|"j"|"k"|"l"|"m"|"n"|"p"|"q"|"r"|"s"|"t"|"v"|"w"|"x"|"y"|"z"|"B"|"C"|"D"|"F"|"G"|"H"|"J"|"K"|"L"|"M"|"N"|"P"|"Q"|"R"|"S"|"T"|"V"|"W"|"X"|"Y"|"Z") ;
 		alveolar_consonant:  pattern Str = #("t"|"d"|"d:"|"n"|"n:"|"l"|"l:"|"T"|"D"|"D:"|"N"|"N:"|"L"|"L:") ; -- Need to check if this pattern for alveolar (dental?) is
 		--PATTERNS dont seem to be working as expected
+			-- Padrões para sufixos plurais
 	
+
+
+
+
+
+
 	mkProperNameKbc : Str-> Gender -> SIMPLEKIND_KBC = \name, gender -> mkNoun name gender ; --pretty much the same as using mkNoun directly (I migh have to adapt this function in future)
 	
 
@@ -610,16 +670,16 @@ param
 
 	--  Clitic 4
 	mkClitics : ValencyType -> CliticsRec -> Str = \vtype, cl -> 
-      (if_then_Str cl.cl4.rel "t" "" ++ if_then_Str cl.cl4.rep "ak" "" ++ if_then_Str cl.cl4.p3 "e" "") ++
-      (case cl.cl5.rel of { RelT => "t" ; RelNone => "" }) ++
-      	mkPersonClitic vtype cl.cl5.pers cl.cl5.num ++
-      (case cl.cl5.dirI of { GoingDirI => "jo" ; GoingStraight => "co" ; GoingTogether => "wa" ; GoingInside => "n" ; GoingAgainst => "get" ; Intens => "b" ; DirINone => "" }) ++ 
-      (case cl.cl5.dirII of { Outward => "ce" ; Upward => "bigim" ; Inward => "w" ; Toward => "gi" ; Backward => "we" ; Downward => "nigi" ; Apart => "cwac" ; AbsentDirII => "ca" ; DirIINone => "" }) ++
-	  (case cl.cl5.semRole of { WaDative => "wa" ; DomBenefect => "dom" ; CAllative => "c" ; LoAdessive => "locom" ; Theme => "d" ; GiGoal => "gi" ; SemNone => "" }) ++
+      (if_then_Str cl.cl4.rel "t" "" + if_then_Str cl.cl4.rep "ak" "" + if_then_Str cl.cl4.p3 "e" "") +
+      (case cl.cl5.rel of { RelT => "t" ; RelNone => "" }) +
+      	mkPersonClitic vtype cl.cl5.pers cl.cl5.num +
+      (case cl.cl5.dirI of { GoingDirI => "jo" ; GoingStraight => "co" ; GoingTogether => "wa" ; GoingInside => "n" ; GoingAgainst => "get" ; Intens => "b" ; DirINone => "" }) +
+      (case cl.cl5.dirII of { Outward => "ce" ; Upward => "bigim" ; Inward => "w" ; Toward => "gi" ; Backward => "we" ; Downward => "nigi" ; Apart => "cwac" ; AbsentDirII => "ca" ; DirIINone => "" }) +
+	  (case cl.cl5.semRole of { WaDative => "wa" ; DomBenefect => "dom" ; CAllative => "c" ; LoAdessive => "locom" ; Theme => "d" ; GiGoal => "gi" ; SemNone => "" }) +
       
 	  
-	  (if_then_Str cl.cl6.rel "t" "" ++ if_then_Str cl.cl6.pl "niwac" "") ++
-      (if_then_Str cl.cl7.rel "t" "" ++ if_then_Str cl.cl7.pl "waji" "");
+	  (if_then_Str cl.cl6.rel "t" ""+ if_then_Str cl.cl6.pl "niwac" "") +
+      (if_then_Str cl.cl7.rel "t" "" + if_then_Str cl.cl7.pl "waji" "");
 	
 
 		-- Função auxiliar para criar VERB_ROOT
@@ -667,8 +727,8 @@ param
 															dirI = cl.cl5.dirI ; dirII = cl.cl5.dirII ; semRole = cl.cl5.semRole} ; 
 														cl6 = cl.cl6 ; cl7 = cl.cl7}
 						in
-						aspPreStr ++ negStr ++ numPreStr ++ personStr ++ reflStr ++ hitherStr ++ 
-						rootStr ++ valStr ++ aspPostStr ++ moodStr ++ numPostStr ++ cliticStr
+						aspPreStr + negStr + numPreStr + personStr + reflStr + hitherStr + 
+						rootStr + valStr + aspPostStr + moodStr + numPostStr + cliticStr
 					}
 					}
 				}
@@ -705,35 +765,57 @@ param
 			n = mkNoun root g
 			}
 		} ;
+	mkNounPhrase : Presence -> Position -> Str -> Number -> Gender -> NounParamSet -> Str -> Bool -> ValencyClit -> NounParamSet -> NounPhrase = 
+		\pres, pos, nounRoot, n, g, nounParams, qualRoot, isVerb, val, qualParams -> {
+			s = 
+			let
+			genderMorph = case g of {
+				Masc => "niGi";
+				Fem  => "naGa"
+			};
+			presencePositionMorph = case <pres, pos> of {
+				<Absent, _>       => "ca";
+				<Present, Standing> => "da";
+				<Present, Sitting>  => "ni";
+				<Present, Lying>    => "di";
+				<Present, Coming>   => "na";
+				<Present, Going>    => "jo"
+			};
+			pluralMorph = case g of {
+				Masc => "nGidiwa";
+				Fem  => "naGadiwa"
+			};
+			det = case n of {
+				Sg => genderMorph + presencePositionMorph;
+				Pl => pluralMorph
+			};
+			noun = mkNoun nounRoot g;
+			nounForm = getNounForm noun nounParams ;
+			qual = case qualRoot of {
+				"" => { v = emptyVerb; n = emptyNoun };
+				_ => mkQualKbc qualRoot g isVerb val
+			};
+			qualForm = case qual.v.s ! PNone ! Sg ! PNone ! Sg ! PNone ! Sg of {
+				"" => case qualRoot of {
+				"" => "";
+				_ => getNounForm qual.n qualParams 
+				};
+				v => v
+			};
+			in
+			det ++ nounForm ++ qualForm;
+			g = g;
+			n = n
+		};
 
-	{-
 	
-	
-	mkQualKbc = overload {
-		mkQualKbc :VERB_ROOT-> Verb = \verb_root-> mkVerb verb_root ;
-		mkQualKbc :Str -> Gender -> Noun = \lema,gender-> mkNoun lema gender ;
-	} ;
-	
-	mkQualKbc : Str -> Gender -> QualIntransVerb -> QUAL_KBC = \root, g, isVerb ->
-      case isVerb of {
-        True => {
-          v = mkVerb root ;
-          n = { s = table { _ => table { _ => table { _ => table { _ => table { _ => "" } } } } } ; g = g } -- Noun vazio
-        } ;
-        False => {
-          v = { s = table { _ => table { _ => "" } } } ; -- Verb vazio
-          n = mkNoun root g
-        }
-      } ;-}
-
-	{-
-
+	teste_getnoun = getNounForm ( mkNoun "Gonelegiwa" Masc) customNounParamSet2;
 
 
 
 
 	--TESTING AREAAAAA
-	{-Man = (mkNoun "Gonel:e:giwa" Sg Masc).s!NoAlnbl!NoPoss!NoPsorNum!UndefClassfr;-}
+	--Man = (mkNoun "Gonel:e:giwa" Sg Masc).s!NoAlnbl!NoPoss!NoPsorNum!UndefClassfr;
 	--Teste = getNounForm (mkNoun "Gonel:e:giwa" Masc) defaultNounParamSet;
 	--Teste2 = getNounForm (mkNoun "Gonel:e:giwa" Masc) customNounParamSet;
     --This kind = demonstDet kind Masc Present Standing;
@@ -741,104 +823,12 @@ param
 	--Test_verb = (mkVerb alEpe).s ! AIncompl ! NegSub ! MDes ! N3Pl ! P3 ! Pl ! Unacc ! PNone ! Sg ! Refl ! HitherPos ! VGad ! AAtel ! {rel=True;rep=False;p3=False} ! {rel=RelT;pron=I;dirI=Jo;dirII=Ce;semRole=WaDat} ! {rel=True;pl=True} !{rel=True;pl=True};
 	--Alepe = mkVerb AIncompl NegSub MDes N3Pl P3 Pl Unacc PNone Sg Refl HitherPos VGad AAtel {rel=True;rep=False;p3=False} {rel=RelT;pron=I;dirI=Jo;dirII=Ce;semRole=WaDat} {rel=True;pl=True} {rel=True;pl=True} alEpe ;
 	
-	TesteDem = demonstDet Sg  "ka" "ida" "ini" "idi" "ina" "ijo" "ada" "ani" "adi" "ana" "ajo" "idiwa" Present Coming defaultNounParamSet (mkNoun "Gonelegiwa" Masc );
+	{-TesteDem = demonstDet Sg  "ka" "ida" "ini" "idi" "ina" "ijo" "ada" "ani" "adi" "ana" "ajo" "idiwa" Present Coming defaultNounParamSet (mkNoun "Gonelegiwa" Masc );
 	TesteDem2 = demonstDet Sg Present Coming defaultNounParamSet (mkNoun "Gonelegiwa" Masc );
 	teste_getnoun = getNounForm ( mkNoun "Gonelegiwa" Masc) customNounParamSet;
-	teste_getnoun = getNounForm ( mkNoun "Gonelegiwa" Masc) customNounParamSet;
+	teste_getnoun = getNounForm ( mkNoun "Gonelegiwa" Masc) customNounParamSet;-}
 	
 
-	{-mkNoun2 : Str -> Gender -> Alienability -> PsorPers -> PsorNum -> SufClassifier -> Number -> Noun = 
-    \root, g, alienabilityParam, psorPersParam, psorNumParam, sufClassifierParam, nParam ->   --I may have to implement inherent features as gender, case ... -- ( Alienability=>PsorPers => PsorNum => SufClassifier =>Number=> Str)
-			{
-				s = table {
-					alienability => table {
-						psorPers => table {
-							psorNum => table {
-								sufClassifier => table {
-									sufixNumber =>
-										let
-											possPrefix = (mkPsorPref).s ! psorPers ! psorNum;   -- Prefixo possessivo
-											alienabilityMarker = (mkAlienability).s ! alienability;  -- Marcador de alienabilidade
-											sufixClassifier = (mkClassSuf).s ! sufClassifier;  -- Sufixo do classificador
-											sufixNumber = (mkNumSuf).s ! sufixNumber; -- Sufixo de número
-
-											-- Ajuste do prefixo possessivo
-											adjustedPsorPrefix = case possPrefix of {
-												"l" => pre {
-													("t"|"d"|"d:"|"n"|"n:"|"l"|"l:"|"T"|"D"|"D:"|"N"|"N:"|"L"|"L:") => "";  -- Remove "l-" para consoantes alveolares
-													_ => "l"  -- Mantém "l-" caso contrário
-												};
-												"God" => pre {
-													("b"|"c"|"d"|"f"|"g"|"h"|"j"|"k"|"l"|"m"|"n"|"p"|"q"|"r"|"s"|"t"|
-													"v"|"w"|"x"|"y"|"z"|"B"|"C"|"D"|"F"|"G"|"H"|"J"|"K"|"L"|"M"|"N"|
-													"P"|"Q"|"R"|"S"|"T"|"V"|"W"|"X"|"Y"|"Z") => "Go";
-													_ => "God"
-												};
-												"Gad" => pre {
-													("b"|"c"|"d"|"f"|"g"|"h"|"j"|"k"|"l"|"m"|"n"|"p"|"q"|"r"|"s"|"t"|
-													"v"|"w"|"x"|"y"|"z"|"B"|"C"|"D"|"F"|"G"|"H"|"J"|"K"|"L"|"M"|"N"|
-													"P"|"Q"|"R"|"S"|"T"|"V"|"W"|"X"|"Y"|"Z") => "Ga";
-													_ => "Gad"
-												};
-												_ => possPrefix  -- Caso padrão
-											};
-										in
-											-- Retorna a palavra composta
-											adjustedPsorPrefix + alienabilityMarker + root + sufixClassifier + sufixNumber
-								}
-							}
-						}
-					}
-				};
-				g = g -- Gênero
-			};-}
- 
-  {-
-	mkNoun : Str -> Gender -> Noun = \root, g ->   --I may have to implement inherent features as gender, case ... -- ( Alienability=>PsorPers => PsorNum => SufClassifier =>Number=> Str)
-			{
-				s = table {
-					alienability => table {
-						psorPers => table {
-							psorNum => table {
-								sufClassifier => table {
-									sufixNumber =>
-										let
-											possPrefix = (mkPsorPref).s ! psorPers ! psorNum;   -- Prefixo possessivo
-											alienabilityMarker = (mkAlienability).s ! alienability;  -- Marcador de alienabilidade
-											sufixClassifier = (mkClassSuf).s ! sufClassifier;  -- Sufixo do classificador
-											sufixNumber = (mkNumSuf).s ! sufixNumber; -- Sufixo de número
-
-											-- Ajuste do prefixo possessivo
-											adjustedPsorPrefix = case possPrefix of {
-												"l" => pre {
-													("t"|"d"|"d:"|"n"|"n:"|"l"|"l:"|"T"|"D"|"D:"|"N"|"N:"|"L"|"L:") => "";  -- Remove "l-" para consoantes alveolares
-													_ => "l"  -- Mantém "l-" caso contrário
-												};
-												"God" => pre {
-													("b"|"c"|"d"|"f"|"g"|"h"|"j"|"k"|"l"|"m"|"n"|"p"|"q"|"r"|"s"|"t"|
-													"v"|"w"|"x"|"y"|"z"|"B"|"C"|"D"|"F"|"G"|"H"|"J"|"K"|"L"|"M"|"N"|
-													"P"|"Q"|"R"|"S"|"T"|"V"|"W"|"X"|"Y"|"Z") => "Go";
-													_ => "God"
-												};
-												"Gad" => pre {
-													("b"|"c"|"d"|"f"|"g"|"h"|"j"|"k"|"l"|"m"|"n"|"p"|"q"|"r"|"s"|"t"|
-													"v"|"w"|"x"|"y"|"z"|"B"|"C"|"D"|"F"|"G"|"H"|"J"|"K"|"L"|"M"|"N"|
-													"P"|"Q"|"R"|"S"|"T"|"V"|"W"|"X"|"Y"|"Z") => "Ga";
-													_ => "Gad"
-												};
-												_ => possPrefix  -- Caso padrão
-											};
-										in
-											-- Retorna a palavra composta
-											adjustedPsorPrefix + alienabilityMarker + root + sufixClassifier + sufixNumber
-								}
-							}
-						}
-					}
-				};
-				g = g -- Gênero
-			};
-	-}
 	
 
 	
