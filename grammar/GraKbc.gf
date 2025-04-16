@@ -109,6 +109,7 @@ teste git
   These = demonstDet Pl Present Coming customNounParamSet ;
   Those = demonstDet Pl Present Going customNounParamSet;
   
+  This = mkNounPhrase Present Coming "eke" Pl Masc customNounParamSet3 "abidaGa" False VNone customNounParamSet4).s
   
   mkKind sk = mkKindKbc sk;
   --demonst Number Presence Position NounParamSet Noun = demonstDet Number Presence Position NounParamSet Noun; 

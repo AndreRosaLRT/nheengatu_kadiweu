@@ -16,7 +16,7 @@ param
     Case = Nom | Gen ;
     -- SG3 = 3rd person singular pronoun, NGS3 = not SG3
     -- TODO: substitute PsorForm for GForm - GroundForm (Figure - Ground distinction)
-    PsorForm = SG3 | NSG3 ;
+    PsorForm = SG3 | NSG3 |Imper ;
     -- TODO: substitute NRel and NAbs for Rel and Abs
     NForm = NRel PsorForm | NAbs ;
     POS = Noun | Pron ;
@@ -40,15 +40,15 @@ param
 	
 	NumPersPsorForm: Number => Person => PsorForm = 
 		   table {
-			Sg => table { P3 => SG3 ; P1|P2 => NSG3} ; 
-			Pl => table { P1|P2|P3 => NSG3}
+			Sg => table { P3 => SG3 ; P1|P2 => NSG3; _ => Imper} ; 
+			Pl => table { P1|P2|P3 => NSG3; _ => Imper }
 			} ;
 
 	POSNumPersPsorForm: POS => Number => Person => PsorForm = 
 	       	  table {
 			Pron => table {
-			     	      Sg => table { P3 => SG3 ; P1|P2 => NSG3} ; 
-			      	      Pl => table { P1|P2|P3 => NSG3}
+			     	      Sg => table { P3 => SG3 ; P1|P2 => NSG3; _=>Imper} ; 
+			      	      Pl => table { P1|P2|P3 => NSG3;_=>Imper}
 				      };
 			Noun => \\num,pers => NSG3
 			      } ;
@@ -72,7 +72,7 @@ param
 		pf: PsorForm = POSNumPersPsorForm ! item.pos 
 		    	       		      ! item.n 
 					      ! item.p;		
-		form: Str = table {SG3 => "s" + stem; NSG3 => lemma} ! pf 
+		form: Str = table {SG3 => "s" + stem; NSG3 => lemma; _=>""} ! pf 
 		in mkPP form nc item ;
 		  };
     
@@ -160,11 +160,14 @@ mkRelPrefN : Str -> Str -> Str -> SIMPLEKIND = \taiti,raiti,saiti -> let  pl: St
     		      Sg => table {
 		      	 NRel SG3 => saiti ; 
 		      	 NRel NSG3 => raiti; 
-		      	 NAbs => taiti } ; 
+		      	 NAbs => taiti ;
+				 _ => ""} ; 
+				 
     		      Pl => table {
 		      	 NRel SG3 => saiti + pl; 
 		      	 NRel NSG3 => raiti + pl ;
-		      	 NAbs => taiti + pl }
+		      	 NAbs => taiti + pl;
+				 _ => "" }
 		} 
 	; nc = NCS } ;
 
@@ -219,11 +222,13 @@ Ind => ""
 SecondClassPron :  Number => Person => NClass => Str = table {
 		Sg => table { P1 => \\nc => "se" ;
 		      	      P2 => \\nc => "ne" ;
-			      P3 => table {NCI => "i"; NCS => ""}
+			      P3 => table {NCI => "i"; NCS => ""};
+				 _=>\\nc => ""
 				};
 		Pl => table { P1 => \\nc => "iané" ;
 		      	      P2 => \\nc => "pe" ;
-			      P3 => \\nc => "aintá"|"ta"		      	    
+			      P3 => \\nc => "aintá"|"ta";
+				  _=>\\nc => ""		      	    
 			      }
 };
 
@@ -241,12 +246,14 @@ mkRegVerbYrl : Str -> {s: Number => Person => Str} =
 	  	Sg => table {
 		   P1 => "a" + x; 
 		   P2 => "re" + x; 
-		   P3 => "u" + x
+		   P3 => "u" + x;
+		   _ => ""
 		   } ; 
 	  	 Pl => table {
 		    P1 => "ia" + x; 
 		    P2 => "pe" + x; 
-		    P3 => "u" + x
+		    P3 => "u" + x;
+		   _ => ""
 		    }
 		    } };
 --TODO: mkRegVerb returns record, mkIrrVerb returns table; uniformize this
