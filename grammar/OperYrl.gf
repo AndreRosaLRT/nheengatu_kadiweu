@@ -82,17 +82,17 @@ param
     properNameYrl : Str -> SIMPLEKIND = \name -> regNounYrl name ;
     
     detYrl = overload {
-    	   detYrl : DEF -> SIMPLEKIND -> DEF_ITEM_YRL = \d,k -> {s = d.s ++ k.s ! d.n ! NAbs ; n = d.n ; p = P3 ; pf = NSG3 } ;
+    	detYrl : DEF -> SIMPLEKIND -> DEF_ITEM_YRL = \d,k -> {s = d.s ++ k.s ! d.n ! NAbs ; n = d.n ; p = P3 ; pf = NSG3 } ;
 
-	    detYrl : Str -> Number -> POSSKIND -> DEF_ITEM_YRL = \f,n,k -> {s = f ++  k.s ! n ; n = n ; p = P3 ; pf = NSG3 } ;
+		detYrl : Str -> Number -> POSSKIND -> DEF_ITEM_YRL = \f,n,k -> {s = f ++  k.s ! n ; n = n ; p = P3 ; pf = NSG3 } ;
 	    
-	   detYrl : Number -> Str -> KIND_YRL -> NONVAR_YRL = 
+		detYrl : Number -> Str -> KIND_YRL -> NONVAR_YRL = 
            	  \num,det,kind -> let  forms: NForm => Str = ExtractNounForms num kind in
 		  {s = {dem=det ; head = forms } ; 
 		  n = num ; 
 		  p = P3 ;
 		  pos = Noun };
-    	   detYrl : Str -> KIND_YRL -> NONVAR_YRL = 
+    	detYrl : Str -> KIND_YRL -> NONVAR_YRL = 
            	  \det,kind -> let 
 		  nsg: NForm => Str = ExtractNounForms Sg kind;
 		  npl: NForm => Str = ExtractNounForms Pl kind;

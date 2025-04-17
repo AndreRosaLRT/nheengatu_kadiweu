@@ -684,52 +684,96 @@ param
 			noun = mkNoun root g
 			}
 		} ;
-	mkNounPhrase : Presence -> Position->Distance-> Str -> Number -> Gender -> NounParamSet -> Str -> Bool -> ValencyClit -> NounParamSet -> NounPhrase = 
-		\pres, pos,dist, nounRoot, n, g, nounParams, qualRoot, isVerb, val, qualParams -> {
-			s = 
-			let
-			genderMorph = case g of {
-				Masc => "i";
-				Fem  => "a"
-			};
-			presencePositionMorph = case <pres, pos> of {
-				<Absent, _>       => "ca";
-				<Present, Standing> => "da";
-				<Present, Sitting>  => "ni";
-				<Present, Lying>    => "di";
-				<Present, Coming>   => "na";
-				<Present, Going>    => "jo"
-			};
-			distanceMorph = case dist of {
-				Close => "nG";
-				_ => "" -- CHECK if there is no realization of other distance other than close
-			};
-			pluralMorph = case g of {
-				Masc => "idiwa";
-				Fem => "idiwa"
-			};
-			det = case n of {
-				Sg => distanceMorph + genderMorph + presencePositionMorph;
-				Pl => distanceMorph + pluralMorph
-			};
-			noun = mkNoun nounRoot g;
-			nounForm = getNounForm noun nounParams n;
-			qual = case qualRoot of {
-				"" => { verb = emptyVerb; noun = emptyNoun };
-				_ => mkQualKbc qualRoot g isVerb val
-			};
-			qualForm = case qual.verb.s ! PNone ! Sg ! PNone ! Sg ! PNone ! Sg of {
-				"" => case qualRoot of {
-				"" => "";
-				_ => getNounForm qual.noun qualParams n
+	
+	
+	
+	mkNounPhrase = overload{
+		mkNounPhrase : Presence -> Position->Distance-> Str -> Number -> Gender -> NounParamSet -> Str -> Bool -> ValencyClit -> NounParamSet -> NounPhrase = 
+			\pres, pos,dist, nounRoot, n, g, nounParams, qualRoot, isVerb, val, qualParams -> {
+				s = 
+				let
+				genderMorph = case g of {
+					Masc => "i";
+					Fem  => "a"
 				};
-				verb => verb
+				presencePositionMorph = case <pres, pos> of {
+					<Absent, _>       => "ca";
+					<Present, Standing> => "da";
+					<Present, Sitting>  => "ni";
+					<Present, Lying>    => "di";
+					<Present, Coming>   => "na";
+					<Present, Going>    => "jo"
+				};
+				distanceMorph = case dist of {
+					Close => "nG";
+					_ => "" -- CHECK if there is no realization of other distance other than close
+				};
+				pluralMorph = case g of {
+					Masc => "idiwa";
+					Fem => "idiwa"
+				};
+				det = case n of {
+					Sg => distanceMorph + genderMorph + presencePositionMorph;
+					Pl => distanceMorph + pluralMorph
+				};
+				noun = mkNoun nounRoot g;
+				nounForm = getNounForm noun nounParams n;
+				qual = case qualRoot of {
+					"" => { verb = emptyVerb; noun = emptyNoun };
+					_ => mkQualKbc qualRoot g isVerb val
+				};
+				qualForm = case qual.verb.s ! PNone ! Sg ! PNone ! Sg ! PNone ! Sg of {
+					"" => case qualRoot of {
+					"" => "";
+					_ => getNounForm qual.noun qualParams n
+					};
+					verb => verb
+				};
+				in
+				det ++ nounForm ++ qualForm;
+				g = g;
+				n = n
 			};
-			in
-			det ++ nounForm ++ qualForm;
-			g = g;
-			n = n
-		};
+			
+			
+			mkNounPhrase : Presence -> Position->Distance-> Noun -> Number ->  NounParamSet -> NounPhrase = 
+			\pres, pos,dist, noun, n, nounParams-> {
+				s = 
+				let
+				genderMorph = case noun.g of {
+					Masc => "i";
+					Fem  => "a"
+				};
+				presencePositionMorph = case <pres, pos> of {
+					<Absent, _>       => "ca";
+					<Present, Standing> => "da";
+					<Present, Sitting>  => "ni";
+					<Present, Lying>    => "di";
+					<Present, Coming>   => "na";
+					<Present, Going>    => "jo"
+				};
+				distanceMorph = case dist of {
+					Close => "nG";
+					_ => "" -- CHECK if there is no realization of other distance other than close
+				};
+				pluralMorph = case noun.g of {
+					Masc => "idiwa";
+					Fem => "idiwa"
+				};
+				det = case n of {
+					Sg => distanceMorph + genderMorph + presencePositionMorph;
+					Pl => distanceMorph + pluralMorph
+				};
+				
+				nounForm = getNounForm noun nounParams n;
+				
+				in
+				det ++ nounForm ;
+				g = noun.g;
+				n = n
+			};
+			
+			};
 
 	
 	--teste_getnoun = getNounForm ( mkNoun "Gonelegiwa" Masc) customNounParamSet2;

@@ -72,7 +72,7 @@ concrete GraKbc of Lex = open Oper, OperKbc, Prelude in {
   Pedro = mkProperNameKbc "Pedro" Fem;
   
   --VERBS
-  Alepe = (mkVerb alEpe Bitrans VNone {cl4={rel=True;rep=False;p3=False}; cl5={rel=RelT;pers=P1;num=Sg;dirI=GoingDirI;dirII=Outward;semRole=WaDative}; cl6={rel=True;pl=True}; cl7={rel=True;pl=True}});
+  Alepe = (mkVerb alEpe Ditrans VNone {cl4={rel=True;rep=False;p3=False}; cl5={rel=RelT;pers=P1;num=Sg;dirI=GoingDirI;dirII=Outward;semRole=WaDative}; cl6={rel=True;pl=True}; cl7={rel=True;pl=True}});
 -- TestBool = testBool True ;
  -- Ant = ;
   
@@ -104,14 +104,14 @@ teste git
   Round= ;
   Strong= ;-}
 
-  This = demonstDet Sg  "ka" "ida" "ini" "idi" "ina" "ijo" "ada" "ani" "adi" "ana" "ajo" "idiwa"  Present Coming customNounParamSet;
-  That = demonstDet Sg Present Going customNounParamSet;
-  These = demonstDet Pl Present Coming customNounParamSet ;
-  Those = demonstDet Pl Present Going customNounParamSet;
-  
-  This = mkNounPhrase Present Coming "eke" Pl Masc customNounParamSet3 "abidaGa" False VNone customNounParamSet4).s
-  
   mkKind sk = mkKindKbc sk;
+  
+  
+  This kind = mkNounPhrase Present Standing Close kind Sg  customNounParamSet;
+  That kind = mkNounPhrase Present Standing Far kind Sg  customNounParamSet;
+  These kind = mkNounPhrase Present Standing Close kind Pl  customNounParamSet;
+  Those kind = mkNounPhrase Present Standing Far kind Pl  customNounParamSet;
+  
   --demonst Number Presence Position NounParamSet Noun = demonstDet Number Presence Position NounParamSet Noun; 
   
   --This = demonstDet Sg  "ka" "ida" "ini" "idi" "ina" "ijo" "ada" "ani" "adi" "ana" "ajo" "idiwa"  Present Coming {alienability = Alnbl;psorPers = PsorP3;psorNum = PsorPl;sufClassifier = AnimPlant;number = Sg}  ; --I have to check this function. I might have to create functions specific to KBC because other parameters other the distance, gender and number apply
