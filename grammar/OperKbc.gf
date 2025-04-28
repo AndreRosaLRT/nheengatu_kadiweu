@@ -28,7 +28,7 @@ param
 
 	--PARAMS FOR THE (PREDICATE): 
 	--POLARITY
-	Polarity = Pos|Neg;
+	
 	
 
 
@@ -147,7 +147,7 @@ param
 	SIMPLEKIND_KBC = Noun ;
 	KIND_KBC = Noun ;  --What would be realized as Adjective (quality) in english is realized as noun or intransitive verb
 	
-	QUAL_KBC : Type = { verb : Verb ; noun : Noun };
+	QUAL_KBC : Type = { verb : Verb ; noun : Noun; isVerbal: Bool };
 	STATE_KBC : Type = QUAL_KBC ** {l: Level }  ;
 		
     --STATE_KBC : QualIntransVerb -> Type = \qiv ->
@@ -158,7 +158,7 @@ param
 	PSORPREF: Type = {s : PsorPers => PsorNum =>  Str}; -- Type for possessor prefixes
 	CLASSFSUFIX:Type ={s : SufClassifier => Number => Str};   --Type for classifier sufixes
 	NUMBERSUFIX : Type = {s : Number => Str};  --Type for number sufixes
-	POLARITY: Type = {s: Polarity => Str};
+	--POLARITY: Type = {s: Polarity => Str};
 
 	--VERB ROOTS
 	VERB_ROOT : Type = {
@@ -296,13 +296,13 @@ param
 					}
 		}
 		};
-	mkPolarity : POLARITY = {
+	{-mkPolarity : POLARITY = {
 		s= table {
 			Pos => "teste_posit";
 			Neg => "teste_neg"
 			
 		}
-	};
+	};-}
 	mkPsorPref :  PSORPREF =  -- helper to Make possessor prefixes (possessor person and number to str)
 		{
 			s = table {
@@ -683,26 +683,26 @@ param
 	
 	
 	--QUALITY
-	mkQualKbc : Str -> Gender -> Bool -> ValencyClit -> QUAL_KBC = \root, g, isVerb, val ->
-		case isVerb of {
-			True => {
-			verb = mkVerb (mkVerbRoot root ** {valencyClit = table { val => True ; _ => False }}) Unacc val 
-						{cl4={rel=False;rep=False;p3=False}; 
-						cl5={rel=RelNone;pers=PNone;num=Sg;dirI=DirINone;dirII=DirIINone;semRole=SemNone}; 
-						cl6={rel=False;pl=False}; 
-						cl7={rel=False;pl=False}} ;
-			noun = emptyNoun
-			} ;
-			False => {
-			verb = emptyVerb ;
-			noun = mkNoun root g
-			}
-		} ;
+	mkQualKbc : Str -> Gender -> Bool -> ValencyClit -> QUAL_KBC = \root, g, isVerb, val -> {
+		verb = case isVerb of {
+			True => mkVerb (mkVerbRoot root ** {valencyClit = table { val => True ; _ => False }}) Unacc val 
+					{cl4={rel=False;rep=False;p3=False}; 
+					cl5={rel=RelNone;pers=PNone;num=Sg;dirI=DirINone;dirII=DirIINone;semRole=SemNone}; 
+					cl6={rel=False;pl=False}; 
+					cl7={rel=False;pl=False}};
+			False => emptyVerb
+		};
+		noun = case isVerb of {
+			True => emptyNoun;
+			False => mkNoun root g
+		};
+		isVerbal = isVerb
+		};
 	
 	
 	
-	mkNounPhrase = overload{
-		mkNounPhrase : Presence -> Position->Distance-> Str -> Number -> Gender -> NounParamSet -> Str -> Bool -> ValencyClit -> NounParamSet -> NounPhrase = 
+	
+		mkNounPhraseWithQual : Presence -> Position->Distance-> Str -> Number -> Gender -> NounParamSet -> Str -> Bool -> ValencyClit -> NounParamSet -> NounPhrase = 
 			\pres, pos,dist, nounRoot, n, g, nounParams, qualRoot, isVerb, val, qualParams -> {
 				s = 
 				let
@@ -750,7 +750,7 @@ param
 			};
 			
 			
-			mkNounPhrase : Presence -> Position->Distance-> Noun -> Number ->  NounParamSet -> NounPhrase = 
+		mkNounPhrase : Presence -> Position->Distance-> Noun -> Number ->  NounParamSet -> NounPhrase = 
 			\pres, pos,dist, noun, n, nounParams-> {
 				s = 
 				let
@@ -786,9 +786,7 @@ param
 				g = noun.g;
 				n = n
 			};
-			
-			};
-
+	 mkItemKbc : NounPhrase -> ITEM_KBC = \nonvar -> {s = nonvar.s ; n =nonvar.n; g = nonvar.g} ;
 	
 	--teste_getnoun = getNounForm ( mkNoun "Gonelegiwa" Masc) customNounParamSet2;
 

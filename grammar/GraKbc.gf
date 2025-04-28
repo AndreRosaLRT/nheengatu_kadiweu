@@ -11,51 +11,39 @@ concrete GraKbc of Lex = open Oper, OperKbc, Prelude in {
   lincat
   {- ; Psor ;  ; ; 
      ; Location ; Deitic  ; Polarity ; PossPro ; PossKind ; Num ; -}
-    Comment = EXPR; 
-    Kind, SimpleKind = KIND_KBC;
-   --
+    Comment = EXPR;
+    Polarity = {s : Str}; 
+    Kind = KIND_KBC;
+    SimpleKind = SIMPLEKIND_KBC;
     State = STATE_KBC;
     Quality =QUAL_KBC;
     --Property =PROPERTY;
     Item, NonDeitic = ITEM_KBC ; --from OperKbc; v
     Action = Verb;
-   
+    Property = QUAL_KBC ;  -- Adicionado
+    Location = QUAL_KBC ;  -- Adicionado
+
   lin
     Yes = {s=""};
     No = {s= "aǤ"  } ;
     Pred pol item st =
       let
-      -- We extract the subject (item.s is a string, e.g., "inGida Ǥoneleegiwa" for "this man")
-        subject : Str = item.s;
-
-        -- We check if the quality is verbal or nominal
-        -- If st.verb is not empty, we use the verbal form
-        predForm : Str = case st.verb.s ! P3 ! item.n ! PNone ! Sg ! PNone ! Sg of {
-          "" =>
-        -- If the verbal form is empty, we use the nominal form
-            let
-            -- We define the parameters for the nominal form
-            nounParams : NounParamSet = customNounParamSet;
-            -- We obtain the quality form as a noun
-            qualForm : Str = getNounForm st.noun nounParams item.n
-            in
-            -- We return the quality form as a string
-            qualForm;
-            verbForm =>
-          -- If the verbal form is not empty, we use the verb
-              verbForm
-        };
-
-      -- We apply the polarity
-      -- pol.s is already a string (e.g., "" for Pos, "aǤ" for Neg)
-      -- In Kadiwéu, negation typically appears as a prefix in the predicate
-      finalPred : Str = pol.s ++ predForm;
-
-      -- We construct the final sentence: [Determiner + Noun + Quality]
-      sentence : Str = subject ++ finalPred
+        subject : Str = item.s ;
+        predForm : Str = case st.isVerbal of {
+          True => st.verb.s ! P3 ! item.n ! PNone ! Sg ! PNone ! Sg ;
+          False => let
+                    nounParams : NounParamSet = customNounParamSet ;
+                    qualForm : Str = getNounForm st.noun nounParams item.n
+                  in qualForm
+        } ;
+        finalPred : Str = pol.s ++ predForm ;
+        sentence : Str = subject ++ finalPred
       in
-      -- We return a Comment, which is a record {s : Str}
-      {s = sentence};
+        { s = sentence } ;
+    
+    mkItemNonDeitic nonvar =  mkItemKbc nonvar ;
+    mkPropQual qual = qual ;
+    IndLevelState qual = qual ** {l = Ind} ;
     
      --
     --let f: FORM = item.s ! st.c ! st.l ;  pred: Str = YrlCopula item.n item.p st.l st.c (st.s ! item.n ! item.p) st.v st.nc pol.s in
@@ -122,6 +110,10 @@ concrete GraKbc of Lex = open Oper, OperKbc, Prelude in {
 
   --Qualities (that can be realized by nouns or verbs (and some times, apparently, adjectives))
   --Delicious = mkQualKbc "delicousTestNoun" Masc False;
+
+  Delicious = mkQualKbc "jemiGu" Masc True VNone; -- Realizado como verbo
+  Beautiful = mkQualKbc "ejipe" Masc False VNone;  -- Realizado como substantivo
+  Good = mkQualKbc "poranG" Masc True VNone;      -- Realizado como verbo
   {-Alive = ;
   Beautiful= ;
   Cheap= ;
@@ -142,10 +134,10 @@ teste git
   mkKind sk = mkKindKbc sk;
   
   
-  This kind = mkNounPhrase Present Standing Close kind Sg  customNounParamSet;
-  That kind = mkNounPhrase Present Standing Far kind Sg  customNounParamSet;
-  These kind = mkNounPhrase Present Standing Close kind Pl  customNounParamSet;
-  Those kind = mkNounPhrase Present Standing Far kind Pl  customNounParamSet;
+  This kind = mkNounPhrase Present Standing Close (mkKind kind) Sg  customNounParamSet;
+  That kind = mkNounPhrase Present Standing Far (mkKind kind) Sg  customNounParamSet;
+  These kind = mkNounPhrase Present Standing Close (mkKind kind) Pl  customNounParamSet;
+  Those kind = mkNounPhrase Present Standing Far (mkKind kind) Pl  customNounParamSet;
   
   --demonst Number Presence Position NounParamSet Noun = demonstDet Number Presence Position NounParamSet Noun; 
   
