@@ -13,6 +13,7 @@ param
 	--PARAMS KBC
 
 	-- PARAMS FOR THE NOUN
+	
 	--Person = P1 | P2 | P3; 
 	--Number = Sg|Pl ; 
 	Alienability = Alnbl | Inlnbl | NoAlnbl ; --(NOT APPLICABLE) ; --Alienable or not (prefix ) (CLASS I or II in the thesis) -- could be a Bool?
@@ -198,6 +199,19 @@ param
       cl7 : {rel : Bool ; pl : Bool}
     } ;
 
+	CliticsRec_test_params : CliticsRec = {
+      cl4 = {rel = False ; rep = False ; p3 = False} ;
+      cl5 = {rel = RelNone ; pers = PNone ; num = Sg ; dirI = DirINone ; dirII = DirIINone ; semRole = SemNone} ;
+      cl6 = {rel = False ; pl = False} ;
+      cl7 = {rel = False ; pl = False}
+    } ;
+
+	CliticsRec_test_params_2 : CliticsRec = {
+        cl4 = {rel = True; rep = False; p3 = True}; -- t- (relacional), e- (terceira pessoa)
+        cl5 = {rel = RelT; pers = P1; num = Sg; dirI = GoingDirI; dirII = Outward; semRole = WaDative}; -- t- (rel), i (P1 Sg), jo (DirI), ce (DirII), wa (dativo)
+        cl6 = {rel = False; pl = True}; -- niwac (plural)
+        cl7 = {rel = True; pl = False} -- t- (relacional)
+      };
 
 		-- Verb vazio padrão
 	emptyVerb : Verb = {
@@ -269,7 +283,7 @@ param
 					suf = case root of {
 					("eke"|"kwe"|"sana")=> "adi"; -- Exemplo: "cachorro", "coisa", "casa"
 					("pila"|"taba")  => "pi";      
-					("abidaGa"|"koda")=> "Ga";   
+					("abidaǤa"|"koda")=> "Ǥa";   
 					("waka"|"jema")=> "dodi";    
 					("nodajo"|"lapi")  => "al:i";
 					_ => "adi"
@@ -295,13 +309,13 @@ param
 			PsorP1 => table {
 				NoPsorNum => ""; -- Handle NoPsorNum explicitly
 				PsorSg => "i";
-				PsorPl => "God"
+				PsorPl => "Ǥod"
 				  
 			};
 			PsorP2 => table {
 				NoPsorNum => "";
-				PsorSg => "Gad";  -- Assuming singular
-				PsorPl => "Gad"  -- Assuming plural
+				PsorSg => "Ǥad";  -- Assuming singular
+				PsorPl => "Ǥad"  -- Assuming plural
 				   -- Handle NoPsorNum explicitly
 			};
 			PsorP3 => table {
@@ -337,10 +351,10 @@ param
 			Pl => "ija"
 			};
 			Instrum => table {
-			_ => "GanGa"
+			_ => "ǤanǤa"
 			};
 			ActorNmnlzr => table {
-			_ => "Gikajo:"
+			_ => "Ǥikajo:"
 			}
 		}
 		};
@@ -371,17 +385,17 @@ param
 							("t"|"d"|"d:"|"n"|"n:"|"l"|"l:"|"T"|"D"|"D:"|"N"|"N:"|"L"|"L:") => "";
 							_ => "l"
 						};
-						"God" => pre {
+						"Ǥod" => pre {
 							("b"|"c"|"d"|"f"|"g"|"h"|"j"|"k"|"l"|"m"|"n"|"p"|"q"|"r"|"s"|"t"|
-							"v"|"w"|"x"|"y"|"z"|"B"|"C"|"D"|"F"|"G"|"H"|"J"|"K"|"L"|"M"|"N"|
+							"v"|"w"|"x"|"y"|"z"|"B"|"C"|"D"|"F"|"G"|"Ǥ"|"H"|"J"|"K"|"L"|"M"|"N"|
 							"P"|"Q"|"R"|"S"|"T"|"V"|"W"|"X"|"Y"|"Z") => "Go";
 							_ => "God"
 						};
-						"Gad" => pre {
+						"Ǥad" => pre {
 							("b"|"c"|"d"|"f"|"g"|"h"|"j"|"k"|"l"|"m"|"n"|"p"|"q"|"r"|"s"|"t"|
 							"v"|"w"|"x"|"y"|"z"|"B"|"C"|"D"|"F"|"G"|"H"|"J"|"K"|"L"|"M"|"N"|
-							"P"|"Q"|"R"|"S"|"T"|"V"|"W"|"X"|"Y"|"Z") => "Ga";
-							_ => "Gad"
+							"P"|"Q"|"R"|"S"|"T"|"V"|"W"|"X"|"Y"|"Z") => "Ǥa";
+							_ => "Ǥad"
 						};
 						_ => possPrefix
 						};
@@ -416,24 +430,24 @@ param
 	--FUNCTION BASED
 	mkAspPre : AspectPre -> Str =
 		\asp -> case asp of {
-			ACompl => "jaG" ;
-			AIncompl => "baGa" ;
-			ADur => "banaGa" ;
+			ACompl => "jaǤ" ;
+			AIncompl => "baǤa" ;
+			ADur => "banaǤa" ;
 			ANone => ""
 		} ; --(-7)
     
     mkNegation : Negation -> Str  = 
 		\neg -> case neg of {
-			NegMain => "aG" ;
-			NegSub => "daGa" ;
-			NegCondImp => "nGa" ;
+			NegMain => "aǤ" ;
+			NegSub => "daǤa" ;
+			NegCondImp => "nǤa" ;
 			NNone => ""
 		} ; --IN THE CASE OF SUBORDINATES (OR ALL CASES?), IT TAKES EFFECT ON THE CLAUSE RANK (NOT AS MORPHEME OF VERB? but is somehow considered a morpheme)
        
 	 mkMood : Mood -> Str =
 		\mood -> case mood of {
-			MDes => "domGa" ;
-			MCond => "dGa" ;
+			MDes => "domǤa" ;
+			MCond => "dǤa" ;
 			_ => ""
 		} ;--(-5)
     
@@ -478,27 +492,27 @@ param
 			----Hierarchy: 1pl.OBJ > 2sg./pl. SUBJ > 1sg.OBJ > 1sg./pl.SUBJ > 3sg./pl.SUBJ > 3sg./pl. OBJ.
 			
 			<Trans, P1, Sg, Nom, P1, Sg, Acc> => "i"  ;  -- 1sg > 1sg (reflexivo)
-			<Trans, P1, _, Nom, P2, _, Acc> => "Ga"  ;  -- 1 > 2sg
+			<Trans, P1, _, Nom, P2, _, Acc> => "Ǥa"  ;  -- 1 > 2sg
 			<Trans, P1, _, Nom, P3, _, Acc> => case root of { 
 				("t"|"d"|"n"|"T"|"D"|"N") + _ => "i"  ;
 				 _ => "j"  } ;  -- 1 > 3
 			<Trans, P1, Pl, Nom, P1, Sg, Acc> => "i"  ;  -- 1sg OBJ > 1sg/PL SUB (=1sg OBJECT)
-			<Trans, P1, Sg, Nom, P1, Pl, Acc> => "Go"  ;  --  (object prefix)
-			<Trans, P1, Pl, Nom, P1, Pl, Acc> => "Go"  ;  -- 1pl > 1pl (reflexivo)
+			<Trans, P1, Sg, Nom, P1, Pl, Acc> => "Ǥo"  ;  --  (object prefix)
+			<Trans, P1, Pl, Nom, P1, Pl, Acc> => "Ǥo"  ;  -- 1pl > 1pl (reflexivo)
 			
 			<Trans, P2, _, Nom, P1, Sg, Acc> => "a"  ;  -- 2 > 1sg
-			<Trans, P2, _, Nom, P1, Pl, Acc> => "Go"  ;  -- 2 > 1pl
+			<Trans, P2, _, Nom, P1, Pl, Acc> => "Ǥo"  ;  -- 2 > 1pl
 			<Trans, P2, _, Nom, P2, Sg, Acc> => "a"  ;  -- 2 > 2sg
 			<Trans, P2, _, Nom, P2, Pl, Acc> => "a"  ;  -- 2 > 2pl
 			<Trans, P2, _, Nom, P3, _, Acc> => "a"  ;  -- 2 > 3
 			
 			<Trans, P3, _, Erg, P1, Sg, Acc> => "i"  ;  -- 3 > 1sg
-			<Trans, P3, _, Erg, P1, Pl, Acc> => "Go"  ;  -- 3 > 1pl
-			<Trans, P3, _, Erg, P2, _, Acc> => "Ga"  ;  -- 3 > 2
+			<Trans, P3, _, Erg, P1, Pl, Acc> => "Ǥo"  ;  -- 3 > 1pl
+			<Trans, P3, _, Erg, P2, _, Acc> => "Ǥa"  ;  -- 3 > 2
 			<Trans, P3, _, Erg, P3, _, Acc> => case root of { ("p"|"b"|"t"|"d"|"k"|"g"|"P"|"B"|"T"|"D"|"K"|"G") + _ => root ; "a"|"A" + _ => "w"  ; "n"|"N" + _ => "a"  ; _ => "y"  } ;  -- 3 > 3
 			<Trans, Impers, _, Nom, P1, Sg, Acc> => "etii"  ;  -- imp > 1sg
-			<Trans, Impers, _, Nom, P1, Pl, Acc> => "etiGo"  ;  -- imp > 1pl
-			<Trans, Impers, _, Nom, P2, _, Acc> => "etiGa"  ;  -- imp > 2
+			<Trans, Impers, _, Nom, P1, Pl, Acc> => "etiǤo"  ;  -- imp > 1pl
+			<Trans, Impers, _, Nom, P2, _, Acc> => "etiǤa"  ;  -- imp > 2
 			<Trans, Impers, _, Nom, P3, _, Acc> => "eti"  ;  -- imp > 3
 			_ => ""  -- padrão
 		} ;
@@ -507,29 +521,29 @@ param
 		case vtype of {
 		Unacc  => case <pers, num> of { -- Objeto indireto opcional (e.g., dativo)
 			<P1, Sg> => "i" ;
-			<P1, Pl> => "Go" ;
-			<P2, _>  => "Ga" ;
+			<P1, Pl> => "Ǥo" ;
+			<P2, _>  => "Ǥa" ;
 			<P3, _>  => "e" ;
 			_        => ""
 		} ;
 		Unerg  => case <pers, num> of { -- Objeto indireto opcional
 			<P1, Sg> => "i" ;
-			<P1, Pl> => "Go" ;
-			<P2, _>  => "Ga" ;
+			<P1, Pl> => "Ǥo" ;
+			<P2, _>  => "Ǥa" ;
 			<P3, _>  => "e" ;
 			_        => ""
 		} ;
 		Trans  => case <pers, num> of { -- Objeto indireto opcional
 			<P1, Sg> => "i" ;
-			<P1, Pl> => "Go" ;
-			<P2, _>  => "Ga" ;
+			<P1, Pl> => "Ǥo" ;
+			<P2, _>  => "Ǥa" ;
 			<P3, _>  => "e" ;
 			_        => ""
 		} ;
 		Ditrans => case <pers, num> of { -- Objeto indireto obrigatório
 			<P1, Sg> => "i" ;
-			<P1, Pl> => "Go" ;
-			<P2, _>  => "Ga" ;
+			<P1, Pl> => "Ǥo" ;
+			<P2, _>  => "Ǥa" ;
 			<P3, _>  => "e" ;
 			<PNone, _> => "" ;--"Ditransitive verbs require an indirect object" ;
 			<Impers, _> => ""
@@ -551,17 +565,17 @@ param
 	mkVal : VERB_ROOT->  ValencyClit -> Str = \verb_root, val ->
 		case verb_root.valencyClit!val of {
 			True => table{
-				VGad  => "Gad" ;
+				VGad  => "Ǥad" ;
 				VTi   => "ti" ;
 				VKan  => "kan" ;
 				VQan  => "qan" ;
 				VKon  => "kon" ;
 				VGon  => "gon" ;
-				VGegi => "Gegi" ;
-				VGan  => "Gan" ;
-				VGen  => "Gen" ;
+				VGegi => "Ǥegi" ;
+				VGan  => "Ǥan" ;
+				VGen  => "Ǥen" ;
 				VQen  => "qen" ;
-				VGod  => "God" ;
+				VGod  => "Ǥod" ;
 				VNone => ""
 
 			}!val;
@@ -579,10 +593,10 @@ param
 	mkNumPost : Person -> Number -> Person -> Number -> Str =
 		\subj, numSubj, obj, numObj -> 
 		case <subj, numSubj, obj, numObj> of {
-			<P1, Pl, _, _> => "Ga" ;    -- P1 plural sujeito
-			<P3, Pl, _, _> => "Ga" ;    -- P3 plural sujeito
+			<P1, Pl, _, _> => "Ǥa" ;    -- P1 plural sujeito
+			<P3, Pl, _, _> => "Ǥa" ;    -- P3 plural sujeito
 			<P2, _, _, _> => "i" ;      -- P2 (qualquer número) sujeito
-			<_, Sg, P1, Pl> => "Ga" ;   -- P1 plural objeto (sujeito singular)
+			<_, Sg, P1, Pl> => "Ǥa" ;   -- P1 plural objeto (sujeito singular)
 			<_, Sg, P2, Pl> => "i" ;    -- P2 plural objeto (sujeito singular)
 			_ => ""                     -- Nenhum sufixo
 		}  ;
@@ -705,7 +719,7 @@ param
 					<Present, Going>    => "jo"
 				};
 				distanceMorph = case dist of {
-					Close => "nG";
+					Close => "nǤ";
 					_ => "" -- CHECK if there is no realization of other distance other than close
 				};
 				pluralMorph = case g of {
@@ -753,7 +767,7 @@ param
 					<Present, Going>    => "jo"
 				};
 				distanceMorph = case dist of {
-					Close => "nG";
+					Close => "nǤ";
 					_ => "" -- CHECK if there is no realization of other distance other than close
 				};
 				pluralMorph = case noun.g of {
