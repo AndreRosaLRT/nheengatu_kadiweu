@@ -9,7 +9,7 @@ resource Oper = open Prelude in {
 flags coding=utf8 ;
 param
 	Person = P1 | P2 | P3 | Impers | PNone ;
-	
+	--Polarity_ = Pos|Neg;
     Number = Sg | Pl ;
     Gender = Masc | Fem ;
     Level = Ind | Stage ;

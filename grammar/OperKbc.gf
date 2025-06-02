@@ -6,7 +6,7 @@
 
 -}
 
-resource OperKbc = open Oper, Prelude in { 
+resource OperKbc = open Oper, Prelude, Predef in { 
 flags coding=utf8 ;
 param
     
@@ -95,12 +95,15 @@ param
       refl : Reflexive ;     -- Reflexividade inerente
       hither : Hither ;      -- Direção inerente
       aspPre : AspectPre ;   -- Aspecto prefixal inerente
-      neg : Negation ;       -- Negação inerente
+           -- Negação inerente
       aspPost : AspectPost ; -- Aspecto sufixal inerente
       mood : Mood ;
 	  case_ : Case  -- Sujeito e objeto variáveis
     } ;
-	
+	Verb_compound : Type = {
+		verb_pos : Verb;
+		verb_neg : Verb
+	};
 				
 	--paramset variables
 	NounParamSet :Type ={
@@ -147,7 +150,7 @@ param
 	SIMPLEKIND_KBC = Noun ;
 	KIND_KBC = Noun ;  --What would be realized as Adjective (quality) in english is realized as noun or intransitive verb
 	
-	QUAL_KBC : Type = { verb : Verb ; noun : Noun; isVerbal: Bool };
+	QUAL_KBC : Type = { verb : Verb_compound ; noun : Noun; isVerbal: Bool };
 	STATE_KBC : Type = QUAL_KBC ** {l: Level }  ;
 		
     --STATE_KBC : QualIntransVerb -> Type = \qiv ->
@@ -167,7 +170,7 @@ param
       refl : Reflexive ;     -- Reflexividade inerente
       hither : Hither ;      -- Direção inerente
       aspPre : AspectPre ;   -- Aspecto prefixal inerente
-      neg : Negation ;       -- Negação inerente
+            -- Negação inerente
       aspPost : AspectPost ; -- Aspecto sufixal inerente
       mood : Mood ;
 	  case_ : Case          -- Modo inerente
@@ -175,14 +178,14 @@ param
 	
 
 	--verb root types
-	--alEpe: verbo com valência VGad
-	alEpe : VERB_ROOT = {
+	--alepe: verbo com valência VGad;
+	alepe : VERB_ROOT = {
     s = "al:epe" ;
     valencyClit = table { VGad => True ; _ => False } ;
     refl = RNone ;           -- Sem reflexividade
     hither = HNone ;         -- Sem direção "hither"
     aspPre = ANone ;         -- Sem aspecto prefixal
-    neg = NNone ;            -- Sem negação
+                -- Sem negação
     aspPost = APNone ;       -- Sem aspecto sufixal
     mood = MNone ;           -- Modo neutro
     case_ = None             -- Caso neutro
@@ -199,14 +202,14 @@ param
       cl7 : {rel : Bool ; pl : Bool}
     } ;
 
-	CliticsRec_test_params : CliticsRec = {
+	cliticsRec_test_params : CliticsRec = {
       cl4 = {rel = False ; rep = False ; p3 = False} ;
       cl5 = {rel = RelNone ; pers = PNone ; num = Sg ; dirI = DirINone ; dirII = DirIINone ; semRole = SemNone} ;
       cl6 = {rel = False ; pl = False} ;
       cl7 = {rel = False ; pl = False}
     } ;
 
-	CliticsRec_test_params_2 : CliticsRec = {
+	cliticsRec_test_params_2 : CliticsRec = {
         cl4 = {rel = True; rep = False; p3 = True}; -- t- (relacional), e- (terceira pessoa)
         cl5 = {rel = RelT; pers = P1; num = Sg; dirI = GoingDirI; dirII = Outward; semRole = WaDative}; -- t- (rel), i (P1 Sg), jo (DirI), ce (DirII), wa (dativo)
         cl6 = {rel = False; pl = True}; -- niwac (plural)
@@ -221,11 +224,16 @@ param
 		refl = RNone ;
 		hither = HNone ;
 		aspPre = ANone ;
-		neg = NNone ;
+	
 		aspPost = APNone ;
 		mood = MNone ;
 		case_ = None
 		} ;
+
+	emptyVerbCompound : Verb_compound = {
+		verb_pos = emptyVerb;
+		verb_neg = emptyVerb
+	};
 
 	-- Noun vazio padrão
 	emptyNoun : Noun = {
@@ -622,7 +630,7 @@ param
 		refl = RNone ;
 		hither = HNone ;
 		aspPre = ANone ;
-		neg = NNone ;
+		
 		aspPost = APNone ;
 		mood = MNone ;
 		case_ = None
@@ -630,8 +638,8 @@ param
 	
 	
 	-- Função principal do paradigma verbal
-  	mkVerb : VERB_ROOT -> ValencyType -> ValencyClit -> CliticsRec -> Verb =
-		\root, vtype, val, cl -> {
+  	mkVerb : VERB_ROOT -> ValencyType -> ValencyClit -> CliticsRec -> Negation ->Verb =
+		\root, vtype, val, cl, neg -> {
 			s = table {
 			subj => table {
 				subjNum => table {
@@ -641,7 +649,7 @@ param
 						indObjNum =>
 						let
 						aspPreStr  = mkAspPre root.aspPre ;
-						negStr     = mkNegation root.neg ;
+						negStr     = mkNegation neg ;
 						numPreStr  = mkNumPre subj subjNum ;
 						personStr  = mkPerson vtype subj subjNum (case vtype of { Unacc => Abs ; _ => Nom }) 
 													obj objNum Acc root.s ;
@@ -660,8 +668,8 @@ param
 															dirI = cl.cl5.dirI ; dirII = cl.cl5.dirII ; semRole = cl.cl5.semRole} ; 
 														cl6 = cl.cl6 ; cl7 = cl.cl7}
 						in
-						aspPreStr + negStr + numPreStr + personStr + reflStr + hitherStr + 
-						rootStr + valStr + aspPostStr + moodStr + numPostStr + cliticStr
+						aspPreStr + negStr + numPreStr + personStr + reflStr  + hitherStr + 
+						rootStr + valStr + aspPostStr + moodStr + numPostStr+ cliticStr
 					}
 					}
 				}
@@ -678,19 +686,23 @@ param
 			mood = root.mood ;
 			case_ = root.case_
 		} ;
-
+	mkVerbCompound : VERB_ROOT -> ValencyType -> ValencyClit -> CliticsRec -> Verb_compound =
+		\root, vtype, val, cl -> {
+			verb_pos = mkVerb root vtype val cl NNone;
+			verb_neg = mkVerb root vtype val cl NegMain
+		};
 	
-	
+	 --VERB_ROOT -> ValencyType -> ValencyClit -> CliticsRec 
 	
 	--QUALITY
-	mkQualKbc : Str -> Gender -> Bool -> ValencyClit -> QUAL_KBC = \root, g, isVerb, val -> {
+	mkQualKbc : Str -> Gender -> Bool -> ValencyClit ->QUAL_KBC = \root, g, isVerb, val -> {
 		verb = case isVerb of {
-			True => mkVerb (mkVerbRoot root ** {valencyClit = table { val => True ; _ => False }}) Unacc val 
+			True => mkVerbCompound (mkVerbRoot root ** {valencyClit = table { val => True ; _ => False }}) Unacc val  
 					{cl4={rel=False;rep=False;p3=False}; 
 					cl5={rel=RelNone;pers=PNone;num=Sg;dirI=DirINone;dirII=DirIINone;semRole=SemNone}; 
 					cl6={rel=False;pl=False}; 
 					cl7={rel=False;pl=False}};
-			False => emptyVerb
+			False => emptyVerbCompound
 		};
 		noun = case isVerb of {
 			True => emptyNoun;
@@ -702,7 +714,7 @@ param
 	
 	
 	
-		mkNounPhraseWithQual : Presence -> Position->Distance-> Str -> Number -> Gender -> NounParamSet -> Str -> Bool -> ValencyClit -> NounParamSet -> NounPhrase = 
+		{-mkNounPhraseWithQual : Presence -> Position->Distance-> Str -> Number -> Gender -> NounParamSet -> Str -> Bool -> ValencyClit -> NounParamSet ->Negation-> NounPhrase = 
 			\pres, pos,dist, nounRoot, n, g, nounParams, qualRoot, isVerb, val, qualParams -> {
 				s = 
 				let
@@ -722,13 +734,10 @@ param
 					Close => "nǤ";
 					_ => "" -- CHECK if there is no realization of other distance other than close
 				};
-				pluralMorph = case g of {
-					Masc => "idiwa";
-					Fem => "idiwa"
-				};
+				pluralMorph = "idiwa";
 				det = case n of {
 					Sg => distanceMorph + genderMorph + presencePositionMorph;
-					Pl => distanceMorph + pluralMorph
+					Pl => distanceMorph + genderMorph + presencePositionMorph+ pluralMorph
 				};
 				noun = mkNoun nounRoot g;
 				nounForm = getNounForm noun nounParams n;
@@ -748,7 +757,7 @@ param
 				g = g;
 				n = n
 			};
-			
+			-}
 			
 		mkNounPhrase : Presence -> Position->Distance-> Noun -> Number ->  NounParamSet -> NounPhrase = 
 			\pres, pos,dist, noun, n, nounParams-> {
@@ -788,8 +797,7 @@ param
 			};
 	 mkItemKbc : NounPhrase -> ITEM_KBC = \nonvar -> {s = nonvar.s ; n =nonvar.n; g = nonvar.g} ;
 	
-	--teste_getnoun = getNounForm ( mkNoun "Gonelegiwa" Masc) customNounParamSet2;
-
+	teste_getnoun = getNounForm ( mkNoun "Gonelegiwa" Masc) customNounParamSet2;
 
 
 
@@ -807,6 +815,8 @@ param
 	teste_getnoun = getNounForm ( mkNoun "Gonelegiwa" Masc) customNounParamSet;
 	teste_getnoun = getNounForm ( mkNoun "Gonelegiwa" Masc) customNounParamSet;-}
 	
+ 	 teste_verb_compound = mkVerbCompound alepe Unacc VNone cliticsRec_test_params;
+										
 
 	
 

@@ -9,9 +9,12 @@ abstract Gra = {
   flags startcat = Comment ;
   cat
     Comment ; Item ; Psor ; Kind ; SimpleKind ; State ; Quality ; 
-    Property ; Location ; Deitic ; NonDeitic ; Polarity ; PossPro ; PossKind ; Num ; Action;
+    Property ; Location ; Deitic ; NonDeitic ; Polarity ; PossPro ; PossKind ; Num ; Action; S;
   fun
+   -- CommentPos: Comment->S;
+    CommentNeg: Comment->S;
     Pred:Polarity->Item->State->Comment;
+   
     StageLevelState : Property -> State ;
     IndLevelState : Property -> State ;
     Mod : Quality -> Kind -> Kind ;
@@ -25,5 +28,8 @@ abstract Gra = {
     mkItemNonDeitic : NonDeitic -> Item ;
     mkPropLoc : Location -> Property ;
     mkPropQual : Quality -> Property ;
+
+    -- New functions to resolve the warnings
+    
     
 }

@@ -7,7 +7,7 @@
 concrete GraYrl of Lex = open Oper, OperYrl in {
  flags coding=utf8 ;
   lincat
-    Comment, Polarity = EXPR ;
+    Comment, Polarity, S = EXPR ;
     Kind = KIND_YRL ;
     SimpleKind = SIMPLEKIND ;
     Quality = QUAL_YRL ;
@@ -25,7 +25,9 @@ concrete GraYrl of Lex = open Oper, OperYrl in {
   lin
     Pred pol item st = let f: FORM = item.s ! st.c ! st.l ;  pred: Str = YrlCopula item.n item.p st.l st.c (st.s ! item.n ! item.p) st.v st.nc pol.s in
      {s= f ! Nom ! NCI ++ pred } ;
+   
     StageLevelState qual = {s= qual.s ; l= Stage; c=qual.c ; v=qual.v ; nc = qual.nc} ;
+   
     IndLevelState qual = {s= qual.s; l= Ind; c=qual.c ; v=qual.v;  nc = qual.nc} ;
     mkItemDeitic var = mkItemYrl var;
     mkItemNonDeitic nonvar =  mkItemYrl nonvar ;
