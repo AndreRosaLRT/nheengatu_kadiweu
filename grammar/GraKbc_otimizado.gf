@@ -19,7 +19,7 @@ concrete GraKbc_otimizado of Lex = open Oper, OperKbc_otimizado, Prelude, Predef
     Yes = {p = True};
     No = {p = False};
    
-    -- Pred otimizado: usa funções auxiliares para acessar formas
+   
    Pred pol item st =
     {s = 
       let
@@ -46,26 +46,25 @@ concrete GraKbc_otimizado of Lex = open Oper, OperKbc_otimizado, Prelude, Predef
     IndLevelState qual = qual ** {l = Ind} ;
 
     -- Nouns (SimpleKind): Usa mkNoun conforme solicitado
-    Man  =  mkNoun "Ǥoneleegiwa" Masc;
-    -- Descomente os outros substantivos conforme necessário, eles usarão mkNoun
-    {- Canoe = mkNoun "niwatece" Fem;
+    Man  =  mkNoun "ǥoneleegiwa" Masc;
+    Canoe = mkNoun "niwatece" Fem;
     Food = mkNoun ("oligi"|"weenigi")Fem;
-    Bird = mkNoun "ilaaǤagi" Masc;
+    Bird = mkNoun "ilaaǥagi" Masc;
     Blood = mkNoun"awodi" Masc;
     Branch = mkNoun "libiwe" Masc;
     Brother_Of_Woman = mkNoun "nioxoa" Masc; 
     Child = mkNoun "nigaanigi" Masc;
-    City = mkNoun "nigotaǤa" Fem ;
+    City = mkNoun "nigotaǥa" Fem ;
     Door = mkNoun "epoagi" Masc;
     Dove = mkNoun "yotibi" Fem ;
-    Fish = mkNoun "noǤojegi" Masc;
+    Fish = mkNoun "noǥojegi" Masc;
     Grandfather = mkNoun "elokodi" Masc;
     Hook = mkNoun "lomiigo" Fem ;
     House = mkNoun "diimigi" Masc;
     Husband = mkNoun "nodawa" Masc;
     Knife = mkNoun "nodaajo" Masc ; 
     Language = mkNoun "ioladi" Masc ;
-    Life = mkNoun "ewiǤa" Masc; 
+    Life = mkNoun "ewiǥa" Masc; 
     Milk = mkNoun "lotiidi" Masc ;
     Nest = mkNoun "libato" Masc ;
     Path = mkNoun "naigi" Masc ;
@@ -76,18 +75,18 @@ concrete GraKbc_otimizado of Lex = open Oper, OperKbc_otimizado, Prelude, Predef
     Seed = mkNoun "lolagi" Fem;  
     Daughter_Of_Man, Daughter_Of_Woman = mkNoun "niona" Fem ;  
     Son_Of_Man, Son_Of_Woman = mkNoun "nionigi" Masc;
-    Stone = mkNoun "wetiǤa" Fem;
+    Stone = mkNoun "wetiǥa" Fem;
     Street = mkNoun "ladigodi" Fem ;
     Toucan = mkNoun "Gatodi" Masc;
     Tree = mkNoun "niale" Fem;  
-    Water = mkNoun "ninyoǤodi" Masc;
+    Water = mkNoun "ninyoǥodi" Masc;
     Wife = mkNoun "nodawa" Fem;
     Woman = mkNoun "iwaalo" Fem;  
-    Word = mkNoun "notaǤa" Masc;
+    Word = mkNoun "notaǥa" Masc;
     Antonio =mkProperNameKbc "Antônio" Masc;
     Joanna = mkProperNameKbc "Joana" Fem;
     Maria = mkProperNameKbc "Maria" Fem;
-    Pedro = mkProperNameKbc "Pedro" Masc;-} 
+    Pedro = mkProperNameKbc "Pedro" Masc;
   
     -- Qualities: Usa mkQualKbc conforme solicitado
     Delicious = IndLevelState (getQualForm (mkQualKbc "jemiGu" Masc True VNone customNounParamSet));
@@ -95,7 +94,7 @@ concrete GraKbc_otimizado of Lex = open Oper, OperKbc_otimizado, Prelude, Predef
     Good = IndLevelState (getQualForm(mkQualKbc "poranG" Masc True VNone customNounParamSet));
 
     -- Função para criar tipos Kind a partir de SimpleKind
-    mkKind sk = mkKindKbc sk;
+   --mkKind sk = mkKindKbc sk;
   
 
    {-StageLevelState qual = {
@@ -106,9 +105,10 @@ concrete GraKbc_otimizado of Lex = open Oper, OperKbc_otimizado, Prelude, Predef
     };-}
    
     -- Demonstrativos: Usa as funções auxiliares de OperKbc
-    This kind = mkNounPhrase Present Standing Close (mkKind kind) Sg customNounParamSet;
-    --That kind = mkThatKind kind;
-   -- These kind = mkTheseKind kind;
-    --Those kind = mkThoseKind kind;
+    This kind = mkNounPhrase Present Standing Close kind Sg customNounParamSet;
+    That kind = mkNounPhrase Present Standing Far kind Sg customNounParamSet;
+   -- These kind =  mkNounPhrase Present Standing Close kind Pl customNounParamSet;
+    --Those kind =  mkNounPhrase Present Standing Far kind Pl customNounParamSet;
+
 
 }

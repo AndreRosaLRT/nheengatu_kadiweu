@@ -6,7 +6,7 @@
 
 -}
 
-resource OperKbc = open Oper, Prelude, Predef in { 
+resource OperKbc = open Oper, Prelude in { 
 flags coding=utf8 ;
 param
     
@@ -95,15 +95,12 @@ param
       refl : Reflexive ;     -- Reflexividade inerente
       hither : Hither ;      -- Direção inerente
       aspPre : AspectPre ;   -- Aspecto prefixal inerente
-           -- Negação inerente
+      neg : Negation ;       -- Negação inerente
       aspPost : AspectPost ; -- Aspecto sufixal inerente
       mood : Mood ;
 	  case_ : Case  -- Sujeito e objeto variáveis
     } ;
-	Verb_compound : Type = {
-		verb_pos : Verb;
-		verb_neg : Verb
-	};
+	
 				
 	--paramset variables
 	NounParamSet :Type ={
@@ -150,7 +147,7 @@ param
 	SIMPLEKIND_KBC = Noun ;
 	KIND_KBC = Noun ;  --What would be realized as Adjective (quality) in english is realized as noun or intransitive verb
 	
-	QUAL_KBC : Type = { verb : Verb_compound ; noun : Noun; isVerbal: Bool };
+	QUAL_KBC : Type = { verb : Verb ; noun : Noun; isVerbal: Bool };
 	STATE_KBC : Type = QUAL_KBC ** {l: Level }  ;
 		
     --STATE_KBC : QualIntransVerb -> Type = \qiv ->
@@ -170,7 +167,7 @@ param
       refl : Reflexive ;     -- Reflexividade inerente
       hither : Hither ;      -- Direção inerente
       aspPre : AspectPre ;   -- Aspecto prefixal inerente
-            -- Negação inerente
+      neg : Negation ;       -- Negação inerente
       aspPost : AspectPost ; -- Aspecto sufixal inerente
       mood : Mood ;
 	  case_ : Case          -- Modo inerente
@@ -178,14 +175,14 @@ param
 	
 
 	--verb root types
-	--alepe: verbo com valência VGad;
-	alepe : VERB_ROOT = {
+	--alEpe: verbo com valência VGad
+	alEpe : VERB_ROOT = {
     s = "al:epe" ;
     valencyClit = table { VGad => True ; _ => False } ;
     refl = RNone ;           -- Sem reflexividade
     hither = HNone ;         -- Sem direção "hither"
     aspPre = ANone ;         -- Sem aspecto prefixal
-                -- Sem negação
+    neg = NNone ;            -- Sem negação
     aspPost = APNone ;       -- Sem aspecto sufixal
     mood = MNone ;           -- Modo neutro
     case_ = None             -- Caso neutro
@@ -202,14 +199,14 @@ param
       cl7 : {rel : Bool ; pl : Bool}
     } ;
 
-	cliticsRec_test_params : CliticsRec = {
+	CliticsRec_test_params : CliticsRec = {
       cl4 = {rel = False ; rep = False ; p3 = False} ;
       cl5 = {rel = RelNone ; pers = PNone ; num = Sg ; dirI = DirINone ; dirII = DirIINone ; semRole = SemNone} ;
       cl6 = {rel = False ; pl = False} ;
       cl7 = {rel = False ; pl = False}
     } ;
 
-	cliticsRec_test_params_2 : CliticsRec = {
+	CliticsRec_test_params_2 : CliticsRec = {
         cl4 = {rel = True; rep = False; p3 = True}; -- t- (relacional), e- (terceira pessoa)
         cl5 = {rel = RelT; pers = P1; num = Sg; dirI = GoingDirI; dirII = Outward; semRole = WaDative}; -- t- (rel), i (P1 Sg), jo (DirI), ce (DirII), wa (dativo)
         cl6 = {rel = False; pl = True}; -- niwac (plural)
@@ -224,16 +221,11 @@ param
 		refl = RNone ;
 		hither = HNone ;
 		aspPre = ANone ;
-	
+		neg = NNone ;
 		aspPost = APNone ;
 		mood = MNone ;
 		case_ = None
 		} ;
-
-	emptyVerbCompound : Verb_compound = {
-		verb_pos = emptyVerb;
-		verb_neg = emptyVerb
-	};
 
 	-- Noun vazio padrão
 	emptyNoun : Noun = {
@@ -291,7 +283,7 @@ param
 					suf = case root of {
 					("eke"|"kwe"|"sana")=> "adi"; -- Exemplo: "cachorro", "coisa", "casa"
 					("pila"|"taba")  => "pi";      
-					("abidaǤa"|"koda")=> "Ǥa";   
+					("abidaǥa"|"koda")=> "ǥa";   
 					("waka"|"jema")=> "dodi";    
 					("nodajo"|"lapi")  => "al:i";
 					_ => "adi"
@@ -317,13 +309,13 @@ param
 			PsorP1 => table {
 				NoPsorNum => ""; -- Handle NoPsorNum explicitly
 				PsorSg => "i";
-				PsorPl => "Ǥod"
+				PsorPl => "ǥod"
 				  
 			};
 			PsorP2 => table {
 				NoPsorNum => "";
-				PsorSg => "Ǥad";  -- Assuming singular
-				PsorPl => "Ǥad"  -- Assuming plural
+				PsorSg => "ǥad";  -- Assuming singular
+				PsorPl => "ǥad"  -- Assuming plural
 				   -- Handle NoPsorNum explicitly
 			};
 			PsorP3 => table {
@@ -359,10 +351,10 @@ param
 			Pl => "ija"
 			};
 			Instrum => table {
-			_ => "ǤanǤa"
+			_ => "ǥanǥa"
 			};
 			ActorNmnlzr => table {
-			_ => "Ǥikajo:"
+			_ => "ǥikajo:"
 			}
 		}
 		};
@@ -393,17 +385,17 @@ param
 							("t"|"d"|"d:"|"n"|"n:"|"l"|"l:"|"T"|"D"|"D:"|"N"|"N:"|"L"|"L:") => "";
 							_ => "l"
 						};
-						"Ǥod" => pre {
+						"ǥod" => pre {
 							("b"|"c"|"d"|"f"|"g"|"h"|"j"|"k"|"l"|"m"|"n"|"p"|"q"|"r"|"s"|"t"|
-							"v"|"w"|"x"|"y"|"z"|"B"|"C"|"D"|"F"|"G"|"Ǥ"|"H"|"J"|"K"|"L"|"M"|"N"|
+							"v"|"w"|"x"|"y"|"z"|"B"|"C"|"D"|"F"|"G"|"ǥ"|"H"|"J"|"K"|"L"|"M"|"N"|
 							"P"|"Q"|"R"|"S"|"T"|"V"|"W"|"X"|"Y"|"Z") => "Go";
 							_ => "God"
 						};
-						"Ǥad" => pre {
+						"ǥad" => pre {
 							("b"|"c"|"d"|"f"|"g"|"h"|"j"|"k"|"l"|"m"|"n"|"p"|"q"|"r"|"s"|"t"|
 							"v"|"w"|"x"|"y"|"z"|"B"|"C"|"D"|"F"|"G"|"H"|"J"|"K"|"L"|"M"|"N"|
-							"P"|"Q"|"R"|"S"|"T"|"V"|"W"|"X"|"Y"|"Z") => "Ǥa";
-							_ => "Ǥad"
+							"P"|"Q"|"R"|"S"|"T"|"V"|"W"|"X"|"Y"|"Z") => "ǥa";
+							_ => "ǥad"
 						};
 						_ => possPrefix
 						};
@@ -438,24 +430,24 @@ param
 	--FUNCTION BASED
 	mkAspPre : AspectPre -> Str =
 		\asp -> case asp of {
-			ACompl => "jaǤ" ;
-			AIncompl => "baǤa" ;
-			ADur => "banaǤa" ;
+			ACompl => "jaǥ" ;
+			AIncompl => "baǥa" ;
+			ADur => "banaǥa" ;
 			ANone => ""
 		} ; --(-7)
     
     mkNegation : Negation -> Str  = 
 		\neg -> case neg of {
-			NegMain => "aǤ" ;
-			NegSub => "daǤa" ;
-			NegCondImp => "nǤa" ;
+			NegMain => "aǥ" ;
+			NegSub => "daǥa" ;
+			NegCondImp => "nǥa" ;
 			NNone => ""
 		} ; --IN THE CASE OF SUBORDINATES (OR ALL CASES?), IT TAKES EFFECT ON THE CLAUSE RANK (NOT AS MORPHEME OF VERB? but is somehow considered a morpheme)
        
 	 mkMood : Mood -> Str =
 		\mood -> case mood of {
-			MDes => "domǤa" ;
-			MCond => "dǤa" ;
+			MDes => "domǥa" ;
+			MCond => "dǥa" ;
 			_ => ""
 		} ;--(-5)
     
@@ -500,27 +492,27 @@ param
 			----Hierarchy: 1pl.OBJ > 2sg./pl. SUBJ > 1sg.OBJ > 1sg./pl.SUBJ > 3sg./pl.SUBJ > 3sg./pl. OBJ.
 			
 			<Trans, P1, Sg, Nom, P1, Sg, Acc> => "i"  ;  -- 1sg > 1sg (reflexivo)
-			<Trans, P1, _, Nom, P2, _, Acc> => "Ǥa"  ;  -- 1 > 2sg
+			<Trans, P1, _, Nom, P2, _, Acc> => "ǥa"  ;  -- 1 > 2sg
 			<Trans, P1, _, Nom, P3, _, Acc> => case root of { 
 				("t"|"d"|"n"|"T"|"D"|"N") + _ => "i"  ;
 				 _ => "j"  } ;  -- 1 > 3
 			<Trans, P1, Pl, Nom, P1, Sg, Acc> => "i"  ;  -- 1sg OBJ > 1sg/PL SUB (=1sg OBJECT)
-			<Trans, P1, Sg, Nom, P1, Pl, Acc> => "Ǥo"  ;  --  (object prefix)
-			<Trans, P1, Pl, Nom, P1, Pl, Acc> => "Ǥo"  ;  -- 1pl > 1pl (reflexivo)
+			<Trans, P1, Sg, Nom, P1, Pl, Acc> => "ǥo"  ;  --  (object prefix)
+			<Trans, P1, Pl, Nom, P1, Pl, Acc> => "ǥo"  ;  -- 1pl > 1pl (reflexivo)
 			
 			<Trans, P2, _, Nom, P1, Sg, Acc> => "a"  ;  -- 2 > 1sg
-			<Trans, P2, _, Nom, P1, Pl, Acc> => "Ǥo"  ;  -- 2 > 1pl
+			<Trans, P2, _, Nom, P1, Pl, Acc> => "ǥo"  ;  -- 2 > 1pl
 			<Trans, P2, _, Nom, P2, Sg, Acc> => "a"  ;  -- 2 > 2sg
 			<Trans, P2, _, Nom, P2, Pl, Acc> => "a"  ;  -- 2 > 2pl
 			<Trans, P2, _, Nom, P3, _, Acc> => "a"  ;  -- 2 > 3
 			
 			<Trans, P3, _, Erg, P1, Sg, Acc> => "i"  ;  -- 3 > 1sg
-			<Trans, P3, _, Erg, P1, Pl, Acc> => "Ǥo"  ;  -- 3 > 1pl
-			<Trans, P3, _, Erg, P2, _, Acc> => "Ǥa"  ;  -- 3 > 2
+			<Trans, P3, _, Erg, P1, Pl, Acc> => "ǥo"  ;  -- 3 > 1pl
+			<Trans, P3, _, Erg, P2, _, Acc> => "ǥa"  ;  -- 3 > 2
 			<Trans, P3, _, Erg, P3, _, Acc> => case root of { ("p"|"b"|"t"|"d"|"k"|"g"|"P"|"B"|"T"|"D"|"K"|"G") + _ => root ; "a"|"A" + _ => "w"  ; "n"|"N" + _ => "a"  ; _ => "y"  } ;  -- 3 > 3
 			<Trans, Impers, _, Nom, P1, Sg, Acc> => "etii"  ;  -- imp > 1sg
-			<Trans, Impers, _, Nom, P1, Pl, Acc> => "etiǤo"  ;  -- imp > 1pl
-			<Trans, Impers, _, Nom, P2, _, Acc> => "etiǤa"  ;  -- imp > 2
+			<Trans, Impers, _, Nom, P1, Pl, Acc> => "etiǥo"  ;  -- imp > 1pl
+			<Trans, Impers, _, Nom, P2, _, Acc> => "etiǥa"  ;  -- imp > 2
 			<Trans, Impers, _, Nom, P3, _, Acc> => "eti"  ;  -- imp > 3
 			_ => ""  -- padrão
 		} ;
@@ -529,29 +521,29 @@ param
 		case vtype of {
 		Unacc  => case <pers, num> of { -- Objeto indireto opcional (e.g., dativo)
 			<P1, Sg> => "i" ;
-			<P1, Pl> => "Ǥo" ;
-			<P2, _>  => "Ǥa" ;
+			<P1, Pl> => "ǥo" ;
+			<P2, _>  => "ǥa" ;
 			<P3, _>  => "e" ;
 			_        => ""
 		} ;
 		Unerg  => case <pers, num> of { -- Objeto indireto opcional
 			<P1, Sg> => "i" ;
-			<P1, Pl> => "Ǥo" ;
-			<P2, _>  => "Ǥa" ;
+			<P1, Pl> => "ǥo" ;
+			<P2, _>  => "ǥa" ;
 			<P3, _>  => "e" ;
 			_        => ""
 		} ;
 		Trans  => case <pers, num> of { -- Objeto indireto opcional
 			<P1, Sg> => "i" ;
-			<P1, Pl> => "Ǥo" ;
-			<P2, _>  => "Ǥa" ;
+			<P1, Pl> => "ǥo" ;
+			<P2, _>  => "ǥa" ;
 			<P3, _>  => "e" ;
 			_        => ""
 		} ;
 		Ditrans => case <pers, num> of { -- Objeto indireto obrigatório
 			<P1, Sg> => "i" ;
-			<P1, Pl> => "Ǥo" ;
-			<P2, _>  => "Ǥa" ;
+			<P1, Pl> => "ǥo" ;
+			<P2, _>  => "ǥa" ;
 			<P3, _>  => "e" ;
 			<PNone, _> => "" ;--"Ditransitive verbs require an indirect object" ;
 			<Impers, _> => ""
@@ -573,17 +565,17 @@ param
 	mkVal : VERB_ROOT->  ValencyClit -> Str = \verb_root, val ->
 		case verb_root.valencyClit!val of {
 			True => table{
-				VGad  => "Ǥad" ;
+				VGad  => "ǥad" ;
 				VTi   => "ti" ;
 				VKan  => "kan" ;
 				VQan  => "qan" ;
 				VKon  => "kon" ;
 				VGon  => "gon" ;
-				VGegi => "Ǥegi" ;
-				VGan  => "Ǥan" ;
-				VGen  => "Ǥen" ;
+				VGegi => "ǥegi" ;
+				VGan  => "ǥan" ;
+				VGen  => "ǥen" ;
 				VQen  => "qen" ;
-				VGod  => "Ǥod" ;
+				VGod  => "ǥod" ;
 				VNone => ""
 
 			}!val;
@@ -601,10 +593,10 @@ param
 	mkNumPost : Person -> Number -> Person -> Number -> Str =
 		\subj, numSubj, obj, numObj -> 
 		case <subj, numSubj, obj, numObj> of {
-			<P1, Pl, _, _> => "Ǥa" ;    -- P1 plural sujeito
-			<P3, Pl, _, _> => "Ǥa" ;    -- P3 plural sujeito
+			<P1, Pl, _, _> => "ǥa" ;    -- P1 plural sujeito
+			<P3, Pl, _, _> => "ǥa" ;    -- P3 plural sujeito
 			<P2, _, _, _> => "i" ;      -- P2 (qualquer número) sujeito
-			<_, Sg, P1, Pl> => "Ǥa" ;   -- P1 plural objeto (sujeito singular)
+			<_, Sg, P1, Pl> => "ǥa" ;   -- P1 plural objeto (sujeito singular)
 			<_, Sg, P2, Pl> => "i" ;    -- P2 plural objeto (sujeito singular)
 			_ => ""                     -- Nenhum sufixo
 		}  ;
@@ -630,7 +622,7 @@ param
 		refl = RNone ;
 		hither = HNone ;
 		aspPre = ANone ;
-		
+		neg = NNone ;
 		aspPost = APNone ;
 		mood = MNone ;
 		case_ = None
@@ -638,8 +630,8 @@ param
 	
 	
 	-- Função principal do paradigma verbal
-  	mkVerb : VERB_ROOT -> ValencyType -> ValencyClit -> CliticsRec -> Negation ->Verb =
-		\root, vtype, val, cl, neg -> {
+  	mkVerb : VERB_ROOT -> ValencyType -> ValencyClit -> CliticsRec -> Verb =
+		\root, vtype, val, cl -> {
 			s = table {
 			subj => table {
 				subjNum => table {
@@ -649,7 +641,7 @@ param
 						indObjNum =>
 						let
 						aspPreStr  = mkAspPre root.aspPre ;
-						negStr     = mkNegation neg ;
+						negStr     = mkNegation root.neg ;
 						numPreStr  = mkNumPre subj subjNum ;
 						personStr  = mkPerson vtype subj subjNum (case vtype of { Unacc => Abs ; _ => Nom }) 
 													obj objNum Acc root.s ;
@@ -668,8 +660,8 @@ param
 															dirI = cl.cl5.dirI ; dirII = cl.cl5.dirII ; semRole = cl.cl5.semRole} ; 
 														cl6 = cl.cl6 ; cl7 = cl.cl7}
 						in
-						aspPreStr + negStr + numPreStr + personStr + reflStr  + hitherStr + 
-						rootStr + valStr + aspPostStr + moodStr + numPostStr+ cliticStr
+						aspPreStr + negStr + numPreStr + personStr + reflStr + hitherStr + 
+						rootStr + valStr + aspPostStr + moodStr + numPostStr + cliticStr
 					}
 					}
 				}
@@ -686,23 +678,19 @@ param
 			mood = root.mood ;
 			case_ = root.case_
 		} ;
-	mkVerbCompound : VERB_ROOT -> ValencyType -> ValencyClit -> CliticsRec -> Verb_compound =
-		\root, vtype, val, cl -> {
-			verb_pos = mkVerb root vtype val cl NNone;
-			verb_neg = mkVerb root vtype val cl NegMain
-		};
+
 	
-	 --VERB_ROOT -> ValencyType -> ValencyClit -> CliticsRec 
+	
 	
 	--QUALITY
-	mkQualKbc : Str -> Gender -> Bool -> ValencyClit ->QUAL_KBC = \root, g, isVerb, val -> {
+	mkQualKbc : Str -> Gender -> Bool -> ValencyClit -> QUAL_KBC = \root, g, isVerb, val -> {
 		verb = case isVerb of {
-			True => mkVerbCompound (mkVerbRoot root ** {valencyClit = table { val => True ; _ => False }}) Unacc val  
+			True => mkVerb (mkVerbRoot root ** {valencyClit = table { val => True ; _ => False }}) Unacc val 
 					{cl4={rel=False;rep=False;p3=False}; 
 					cl5={rel=RelNone;pers=PNone;num=Sg;dirI=DirINone;dirII=DirIINone;semRole=SemNone}; 
 					cl6={rel=False;pl=False}; 
 					cl7={rel=False;pl=False}};
-			False => emptyVerbCompound
+			False => emptyVerb
 		};
 		noun = case isVerb of {
 			True => emptyNoun;
@@ -714,7 +702,7 @@ param
 	
 	
 	
-		{-mkNounPhraseWithQual : Presence -> Position->Distance-> Str -> Number -> Gender -> NounParamSet -> Str -> Bool -> ValencyClit -> NounParamSet ->Negation-> NounPhrase = 
+		mkNounPhraseWithQual : Presence -> Position->Distance-> Str -> Number -> Gender -> NounParamSet -> Str -> Bool -> ValencyClit -> NounParamSet -> NounPhrase = 
 			\pres, pos,dist, nounRoot, n, g, nounParams, qualRoot, isVerb, val, qualParams -> {
 				s = 
 				let
@@ -731,13 +719,16 @@ param
 					<Present, Going>    => "jo"
 				};
 				distanceMorph = case dist of {
-					Close => "nǤ";
+					Close => "nǥ";
 					_ => "" -- CHECK if there is no realization of other distance other than close
 				};
-				pluralMorph = "idiwa";
+				pluralMorph = case g of {
+					Masc => "idiwa";
+					Fem => "idiwa"
+				};
 				det = case n of {
 					Sg => distanceMorph + genderMorph + presencePositionMorph;
-					Pl => distanceMorph + genderMorph + presencePositionMorph+ pluralMorph
+					Pl => distanceMorph + pluralMorph
 				};
 				noun = mkNoun nounRoot g;
 				nounForm = getNounForm noun nounParams n;
@@ -757,7 +748,7 @@ param
 				g = g;
 				n = n
 			};
-			-}
+			
 			
 		mkNounPhrase : Presence -> Position->Distance-> Noun -> Number ->  NounParamSet -> NounPhrase = 
 			\pres, pos,dist, noun, n, nounParams-> {
@@ -776,7 +767,7 @@ param
 					<Present, Going>    => "jo"
 				};
 				distanceMorph = case dist of {
-					Close => "nǤ";
+					Close => "nǥ";
 					_ => "" -- CHECK if there is no realization of other distance other than close
 				};
 				pluralMorph = case noun.g of {
@@ -797,7 +788,8 @@ param
 			};
 	 mkItemKbc : NounPhrase -> ITEM_KBC = \nonvar -> {s = nonvar.s ; n =nonvar.n; g = nonvar.g} ;
 	
-	teste_getnoun = getNounForm ( mkNoun "Gonelegiwa" Masc) customNounParamSet2;
+	--teste_getnoun = getNounForm ( mkNoun "Gonelegiwa" Masc) customNounParamSet2;
+
 
 
 
@@ -815,8 +807,6 @@ param
 	teste_getnoun = getNounForm ( mkNoun "Gonelegiwa" Masc) customNounParamSet;
 	teste_getnoun = getNounForm ( mkNoun "Gonelegiwa" Masc) customNounParamSet;-}
 	
- 	 teste_verb_compound = mkVerbCompound alepe Unacc VNone cliticsRec_test_params;
-										
 
 	
 
